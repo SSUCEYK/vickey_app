@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:src="@drawable/icon_cinema_white"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:src="@drawable/vickey_logo"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="23dp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="60dp"
+            android:textStyle="italic"
+            android:text="Vickey에 오신 것을 환영합니다!" />
+
+        <Button
+            android:id="@+id/kakao_login_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="80dp"
+            android:text="카카오로 로그인하기"
+            android:background="@drawable/radius20_yellow"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/naver_login_btn"
+            android:layout_marginHorizontal="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="네이버로 로그인하기"
+            android:background="@drawable/radius20_green"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/google_login_btn"
+            android:layout_marginHorizontal="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="구글으로 로그인하기"
+            android:background="@drawable/radius20_blue"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/email_login_btn"
+            android:layout_marginHorizontal="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="이메일으로 로그인하기"
+            android:background="@drawable/radius20_white"/>
+
+        <TextView
+            android:id="@+id/sign_up_text"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="가입하기"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:clickable="true"/>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
