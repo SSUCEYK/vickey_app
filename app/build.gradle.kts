@@ -8,7 +8,7 @@ plugins {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("C:\\Users\\jweun\\vickey.jks")
+            storeFile = file("vickey.jks")
             storePassword = "qlalfqjsgh"
             keyAlias = "key0"
             keyPassword = "qlalfqjsgh"
@@ -26,7 +26,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "KAKAO_KEY", getApiKey("KAKAO_KEY"))
+        //buildConfigField("String", "KAKAO_KEY", getApiKey("KAKAO_KEY"))
     }
 
     buildTypes {
@@ -48,9 +48,7 @@ android {
     }
 }
 
-fun getApiKey(propertyKey: String): String {
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
+
 
 dependencies {
 
