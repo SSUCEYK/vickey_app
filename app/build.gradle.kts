@@ -1,8 +1,16 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
+}
+
+val properties = Properties()
+properties.load(project.rootProject.file("local.properties").inputStream())
+
+fun getApiKey(propertyKey: String): String {
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
 android {
@@ -26,7 +34,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "KAKAO_KEY", getApiKey("KAKAO_KEY"))
+        buildConfigField("String", "AWS_KEY", getApiKey("AWSKey"))
+        buildConfigField("String", "AWS_SECRET_KEY", getApiKey("AWSSecretKey"))
+        buildConfigField("String", "AWS_S3_BUCKET_NAME", getApiKey("AWSS3BucketName"))
     }
 
     buildTypes {
@@ -48,9 +58,6 @@ android {
     }
 }
 
-fun getApiKey(propertyKey: String): String {
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
 
 dependencies {
 
@@ -86,9 +93,9 @@ dependencies {
 
     // Google Play services
     implementation ("com.google.gms:google-services:4.4.2")
-    implementation ("com.google.firebase:firebase-auth:21.0.1") // firebase-auth도 함께 다운그레이드
-    implementation ("com.google.android.gms:play-services-auth:20.1.0") // play-services-auth 버전 다운그레이드
-    implementation(platform("com.google.firebase:firebase-bom:31.1.0")) // firebase-bom 버전도 조정
+    implementation ("com.google.firebase:firebase-auth:21.0.1")
+    implementation ("com.google.android.gms:play-services-auth:20.1.0")
+    implementation(platform("com.google.firebase:firebase-bom:31.1.0"))
     implementation("com.google.firebase:firebase-analytics")
 
     implementation("com.google.android.material:material:1.12.0")
@@ -97,5 +104,15 @@ dependencies {
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.github.bumptech.glide:glide:4.9.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.9.0")
+    implementation ("com.squareup.picasso:picasso:2.71828")
+
+    implementation("com.amazonaws:aws-android-sdk-s3:2.77.0")
+
+    implementation ("com.google.code.gson:gson:2.8.2")
+    testImplementation ("com.squareup.okhttp3:mockwebserver:4.9.3")
+    implementation ("com.h2database:h2:2.1.214")
+
+//    implementation ("androidx.credentials:credentials:1.0.0")
+//    implementation ("androidx.credentials:credentials-play-services:1.0.0")
 
 }

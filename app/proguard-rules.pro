@@ -22,3 +22,8 @@
 
 -keep class androidx.lifecycle.** { *; }
 -keepclassmembers class * extends androidx.lifecycle.** { *; }
+
+#-if class androidx.credentials.CredentialManager
+#-keep class androidx.credentials.playservices.** {
+#  *;
+#}

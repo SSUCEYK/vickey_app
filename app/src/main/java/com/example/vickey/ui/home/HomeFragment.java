@@ -21,30 +21,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.vickey.ContentItemAdapter;
+import com.example.vickey.ContentItem;
 import com.example.vickey.ImageSliderAdapter;
+import com.example.vickey.ParentAdapter;
 import com.example.vickey.R;
+import com.example.vickey.api.ApiClient;
+import com.example.vickey.api.EpisodeService;
 import com.example.vickey.databinding.FragmentHomeBinding;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeFragment extends Fragment {
+
+    private EpisodeService episodeService;
+    private List<String> imageUrls = new ArrayList<>();
 
     private FragmentHomeBinding binding;
     private ViewPager2 sliderViewPager;
     private LinearLayout layoutIndicator;
-    private final String TAG = "HomeFragment";
 
-    private int[] images = new int[] {
-            R.drawable.thumbnail_goblin,
-            R.drawable.thumbnail_lovefromstar,
-            R.drawable.thumbnail_ohmyghost,
-            R.drawable.thumbnail_ourbelovedsummer,
-            R.drawable.thumbnail_signal,
-            R.drawable.thumbnail_vincenzo
-    };
+    private RecyclerView mainRecyclerView; // contents List - 상위 RecyclerView
+
+    private final String TAG = "HomeFragment";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -61,38 +65,37 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // ApiClient를 통해 Retrofit 인스턴스 가져오기
+        episodeService = ApiClient.getClient().create(EpisodeService.class);
+        sliderViewPager = view.findViewById(R.id.sliderViewPager);
+        layoutIndicator = view.findViewById(R.id.layoutIndicators);
+        fetchImages();
+        imageUrls = imageUrlShuffle(); //테스트용
+        setupSlider();
+
         //콘텐츠 리스트
-        // 어댑터 설정
-        RecyclerView recyclerView1 = view.findViewById(R.id.contentRecyclerView1);
-        RecyclerView recyclerView2 = view.findViewById(R.id.contentRecyclerView2);
+        // Main RecyclerView 설정
+        mainRecyclerView = view.findViewById(R.id.mainRecyclerView); // mainRecyclerView ID를 Fragment XML에서 설정
+        mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // LayoutManager 설정
-        recyclerView1.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerView2.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
-
-        // 데이터 준비
-        List<Integer> contentImages1 = imageShuffle();
-        List<Integer> contentImages2 = imageShuffle();
+        List<ContentItem> contentItems = new ArrayList<>();
+        contentItems.add(new ContentItem("인기콘텐츠", imageUrlShuffle()));
+        contentItems.add(new ContentItem("재미있는 콘텐츠", imageUrlShuffle()));
 
         // 어댑터 설정
-        recyclerView1.setAdapter(new ContentItemAdapter(contentImages1));
-        recyclerView2.setAdapter(new ContentItemAdapter(contentImages2));
-
-        Log.d(TAG, "Content for RecyclerView 1: " + contentImages1.size());
-        Log.d(TAG, "Content for RecyclerView 2: " + contentImages2.size());
-
+        ParentAdapter mainAdapter = new ParentAdapter(contentItems, requireContext());
+        mainRecyclerView.setAdapter(mainAdapter);
 
         //검색
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.actionbar_menu, menu);
-                Log.d(TAG, "Menu created: " + menu.size()); // 메뉴 아이템 수 출력
+//                Log.d(TAG, "Menu created: " + menu.size()); // 메뉴 아이템 수 출력
                 MenuItem menuItem = menu.findItem(R.id.search);
                 SearchView searchView = (SearchView) menuItem.getActionView();
                 searchView.setQueryHint(getString(R.string.search_query_hint));
@@ -108,17 +111,16 @@ public class HomeFragment extends Fragment {
             }
         }, getViewLifecycleOwner());
 
-        //슬라이더
-        // Initialize views using the 'view' parameter
-        sliderViewPager = view.findViewById(R.id.sliderViewPager);
-        layoutIndicator = view.findViewById(R.id.layoutIndicators);
+    }
 
+
+
+    private void setupSlider() {
         // Image Adapter 설정
-        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), images));
+        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), imageUrls));
 
         // Stack Animation 설정
         sliderViewPager.setOffscreenPageLimit(3); //좌, 우까지
-
         sliderViewPager.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override
             public void transformPage(@NonNull View page, float position) {
@@ -140,7 +142,7 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        
+
         // 페이지 변경 시 Indicator Update
         sliderViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -149,7 +151,7 @@ public class HomeFragment extends Fragment {
                 setCurrentIndicator(position);
 
                 // 마지막 페이지에 도달했을 때 첫 페이지로 돌아가기
-                if (position == images.length - 1) {
+                if (position == imageUrls.size() - 1) {
                     sliderViewPager.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -160,24 +162,28 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        //Indicator 설정
-        setupIndicators(images.length);
+
+        // Indicator 설정
+        setupIndicators(imageUrls.size());
     }
 
+    private void fetchImages() {
+        episodeService.getEpisodeThumbnails().enqueue(new Callback<List<String>>() {
+            @Override
+            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    imageUrls = response.body();
+                    Log.d(TAG + "/fetchImages", "imageURls: " + imageUrls);
+                }
+            }
 
-
-    private List<Integer> imageShuffle() {
-        List<Integer> contentList = new ArrayList<>();
-        contentList.add(R.drawable.thumbnail_goblin);
-        contentList.add(R.drawable.thumbnail_lovefromstar);
-        contentList.add(R.drawable.thumbnail_ohmyghost);
-        contentList.add(R.drawable.thumbnail_ourbelovedsummer);
-        contentList.add(R.drawable.thumbnail_vincenzo);
-        contentList.add(R.drawable.thumbnail_signal);
-
-        Collections.shuffle(contentList);
-        return contentList;
+            @Override
+            public void onFailure(Call<List<String>> call, Throwable t) {
+                Log.e(TAG, "Image data fetch failed", t);
+            }
+        });
     }
+
 
 
     private void setupIndicators(int count) {
@@ -209,6 +215,36 @@ public class HomeFragment extends Fragment {
                         requireContext(), R.drawable.bg_indicator_inactive));
             }
         }
+    }
+
+
+
+    //임시
+
+    private List<String> imageUrlShuffle() {
+        List<String> contentList = new ArrayList<>();
+        contentList.add("https://placehold.co/132x180");
+        contentList.add("https://placehold.co/132x180");
+        contentList.add("https://placehold.co/132x180");
+        contentList.add("https://placehold.co/132x180");
+        contentList.add("https://placehold.co/132x180");
+        contentList.add("https://placehold.co/132x180");
+        Collections.shuffle(contentList);
+        return contentList;
+    }
+
+
+    private List<Integer> imageShuffle() {
+        List<Integer> contentList = new ArrayList<>();
+        contentList.add(R.raw.thumbnail_goblin);
+        contentList.add(R.raw.thumbnail_lovefromstar);
+        contentList.add(R.raw.thumbnail_ohmyghost);
+        contentList.add(R.raw.thumbnail_ourbelovedsummer);
+        contentList.add(R.raw.thumbnail_vincenzo);
+        contentList.add(R.raw.thumbnail_signal);
+
+        Collections.shuffle(contentList);
+        return contentList;
     }
 
 

@@ -17,32 +17,39 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
-public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.MyViewHolder> {
-    private Context context;
-    private List<String> sliderImage;
+public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder> {
 
-    public ImageSliderAdapter(Context context, List<String> sliderImage) {
+    private Context context;
+    private List<String> contentImages;
+    //    private int[] contentImages;
+
+    public LikesAdapter(Context context, List<String> contentImages) {
         this.context = context;
-        this.sliderImage = sliderImage;
+        this.contentImages = contentImages;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_slider, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_likes, parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        String url = sliderImage.get(position);
+//        int imageResId = contentImages[position];
+//        holder.contentImage.setImageResource(imageResId);
+
+        String url = contentImages.get(position);
         holder.bindImage(url);
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Intent를 통해 새로운 액티비티 실행
-                Intent intent = new Intent(context, ShortsActivity.class);
+                // 좋아요 컨텐츠 -> 좋아요 에피소드 리스트 보여주는 액티비티
+                Intent intent = new Intent(context, LikesEpisodeActivity.class);
+//                intent.putExtra("imageResId", imageResId);
                 intent.putExtra("imageUrl", url);
                 context.startActivity(intent);
             }
@@ -52,21 +59,22 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     @Override
     public int getItemCount() {
-        return sliderImage.size();
+//        return contentImages.length;
+        return contentImages.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        private ImageView imageView;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.imageSlider);
+            imageView = itemView.findViewById(R.id.likes_image);
         }
 
         @SuppressLint("ResourceType")
         public void bindImage(String imageUrl) {
 //            imageView.setImageResource(imageResId);
-            Log.d("ImageSliderAdapter", imageUrl);
+            Log.d("LikesAdapter", imageUrl);
             Glide.with(context)
                     .load(imageUrl)
                     .skipMemoryCache(true)
@@ -74,18 +82,6 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .error(R.raw.thumbnail_goblin)
                     .into(imageView);
 
-//            Glide.with(context)
-//                    .load(imageUrl)
-//                    .apply(new RequestOptions()
-//                            .skipMemoryCache(true)
-//                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                            .error(R.raw.thumbnail_goblin))
-//                    .into(imageView);
-
-//            Picasso.get()
-//                    .load(imageUrl)
-//                    .error(R.raw.thumbnail_goblin)
-//                    .into(imageView);
         }
     }
 }

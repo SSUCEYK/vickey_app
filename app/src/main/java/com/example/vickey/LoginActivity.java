@@ -181,9 +181,12 @@ public class LoginActivity extends AppCompatActivity {
             registerForActivityResult(
                     new ActivityResultContracts.StartIntentSenderForResult(),
                     result -> {
-                        Log.e("GOOGLE LOGIN", "Result code: " + result.getResultCode());
+                        Log.e(TAG, "Google Sign-in Result code: " + result.getResultCode());
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             Intent data = result.getData();
+
+                            Log.e(TAG, "Google Sign-in Result data: " + data);
+
                             if (data != null) {
                                 try {
                                     // 로그인 성공 시, 구글 계정 정보 가져오기
@@ -191,8 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String username = signInCredential.getId();
                                     String displayName = signInCredential.getDisplayName();
 
-                                    Log.e(TAG, "Login success: " + username + ", " + displayName);
-                                    Log.e("GOOGLE LOGIN", "ActivityResultLauncher DoSiginGoogleToken");
+                                    Log.e(TAG, "Google Sign-in Login success: " + username + ", " + displayName);
                                     doSigninGoogleToken(username, displayName);
 
                                 } catch (ApiException e) {
@@ -216,6 +218,7 @@ public class LoginActivity extends AppCompatActivity {
 
         oneTapClient.getSignInIntent(getSignInIntentRequest)
                 .addOnSuccessListener(pendingIntent -> {
+                    Log.e(TAG, "Google Sign-in One Tap success");
                     IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent.getIntentSender()).build();
                     intentSenderRequestActivityResultLauncher.launch(intentSenderRequest);
                 })

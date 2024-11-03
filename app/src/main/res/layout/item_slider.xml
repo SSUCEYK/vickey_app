@@ -12,7 +12,9 @@
         android:scaleType="centerCrop"
         android:contentDescription="@string/content_list_name1"
         android:adjustViewBounds="true"
-        app:shapeAppearanceOverlay="@style/Rounded20Corners" />
+        app:shapeAppearanceOverlay="@style/Rounded20Corners"
+        android:clickable="true"
+        />
 
 </LinearLayout>
 
