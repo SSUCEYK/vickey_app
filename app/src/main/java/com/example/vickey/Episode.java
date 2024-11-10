@@ -2,12 +2,11 @@ package com.example.vickey;
 
 //episode api 불러올 때 받기위함
 public class Episode {
-    private int episodeId;
-    private int videoId;
-    private String title;
-    private String casting;
-    private String releaseDate;
-    private int duration;
+    private int episodeId; //고유 콘텐츠 아이디
+    private int episodeNum; // 총 회차수
+    private String title; //콘텐츠 제목
+    private String casting; //콘텐츠 연출
+    private String releaseDate; //업로드 년도
     private String description;
     private String thumbnailUrl;
 
@@ -19,12 +18,12 @@ public class Episode {
         this.episodeId = episodeId;
     }
 
-    public int getVideoId() {
-        return videoId;
+    public int getEpisodeNum() {
+        return episodeNum;
     }
 
-    public void setVideoId(int videoId) {
-        this.videoId = videoId;
+    public void setEpisodeNum(int episodeNum) {
+        this.episodeNum = episodeNum;
     }
 
     public String getTitle() {
@@ -49,14 +48,6 @@ public class Episode {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     public String getDescription() {

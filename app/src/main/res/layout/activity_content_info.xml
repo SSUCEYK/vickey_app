@@ -63,7 +63,7 @@
                 <TextView
                     android:id="@+id/descriptionTitle"
                     android:layout_width="123dp"
-                    android:layout_height="51dp"
+                    android:layout_height="wrap_content"
                     android:layout_margin="30dp"
                     android:text="@string/content_title"
                     android:textColor="@android:color/white"

@@ -9,5 +9,8 @@ import java.util.List;
 //APIService 관련
 public interface APIService {
     @GET("/api/episodes/search")
-    Call<List<Episode>> searchEpisodes(@Query("query") String query);
+    Call<List<Episode>> searchEpisodes(@Query("searchQuery") String searchQuery);
+
+    @GET("api/episodes/contentInfo")
+    Call<Episode> contentInfoEpisodes(@Query("contentInfoQuery") Integer contentInfoQuery);
 }

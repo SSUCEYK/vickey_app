@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--retrofit 사용시 로컬 db 테스트를 위함-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
