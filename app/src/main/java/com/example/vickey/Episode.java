@@ -9,6 +9,7 @@ public class Episode {
     private String releaseDate; //업로드 년도
     private String description;
     private String thumbnailUrl;
+    private String videoURLs;
 
     public int getEpisodeId() {
         return episodeId;
@@ -64,5 +65,13 @@ public class Episode {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getVideoURLs() {
+        return videoURLs;
+    }
+
+    public void setVideoURLs(String videoURLs) {
+        this.videoURLs = videoURLs;
     }
 }

@@ -89,6 +89,19 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:31.1.0")) // firebase-bom 버전도 조정
     implementation("com.google.firebase:firebase-analytics")
 
+    //amazon sdk for android
+    implementation("com.amazonaws:aws-android-sdk-s3:2.76.0")
+    implementation("com.amazonaws:aws-android-sdk-mobile-client:2.76.0")
+    implementation("com.amazonaws:aws-android-sdk-cognito:2.20.0")
+    implementation("com.amazonaws:aws-android-sdk-core:2.76.0")
+
+    //exoplayer
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+
+    implementation("com.google.code.gson:gson:2.10.1")
+
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.recyclerview:recyclerview:1.3.2")

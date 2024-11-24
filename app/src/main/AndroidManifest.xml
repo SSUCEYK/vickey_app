@@ -63,6 +63,8 @@
                     android:scheme="@string/kakao_app_key_scheme" />
             </intent-filter>
         </activity>
+        <activity android:name=".ShortsActivity"/>
+
     </application>
 
 </manifest>

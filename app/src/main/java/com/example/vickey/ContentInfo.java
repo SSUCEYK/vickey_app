@@ -1,5 +1,6 @@
 package com.example.vickey;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.GridLayout;
@@ -99,9 +100,8 @@ public class ContentInfo extends AppCompatActivity {
         });
     }
 
-    private void createEpisodeButtons(int episodeNum) {
+    private void createEpisodeButtons(int episodeNum, int episodeId) {
         GridLayout gridLayout = findViewById(R.id.episodeGrid);
-
         gridLayout.setColumnCount(7);
 
         for (int i = 1; i <= episodeNum; i++) {
@@ -114,6 +114,14 @@ public class ContentInfo extends AppCompatActivity {
             params.height = 100;
             params.setMargins(10, 10, 10, 10);  // 간격 설정
             episodeButton.setLayoutParams(params);
+
+            final int videoNum = i; //특정 회차
+            episodeButton.setOnClickListener(v -> {
+                Intent intent = new Intent(ContentInfo.this, ShortsActivity.class);
+                intent.putExtra("episodeId", episodeId);
+                intent.putExtra("videoNum", videoNum);    // episodeNum -> videoNum
+                startActivity(intent);
+            });
 
             // 버튼을 그리드 레이아웃에 추가
             gridLayout.addView(episodeButton);
@@ -135,7 +143,7 @@ public class ContentInfo extends AppCompatActivity {
                     .into(contentsImage);
         }
 
-        createEpisodeButtons(episode.getEpisodeNum());
+        createEpisodeButtons(episode.getEpisodeNum(), episode.getEpisodeId());
     }
 
     @Override
