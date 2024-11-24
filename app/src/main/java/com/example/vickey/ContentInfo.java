@@ -50,7 +50,7 @@ public class ContentInfo extends AppCompatActivity {
         apiService = RetrofitClient.getApiService();
 
 
-        int episodeId = 1;
+        int episodeId = 3;
         loadEpisodeData(episodeId);
 
         setupBottomSheet();
