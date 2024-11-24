@@ -7,8 +7,10 @@ import android.widget.GridLayout;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
@@ -31,6 +33,7 @@ public class ContentInfo extends AppCompatActivity {
     private TextView castTextView;
     private TextView summaryTextView;
     private ImageView contentsImage;
+    private ImageButton backButton;
 
     private APIService apiService;
 
@@ -47,15 +50,20 @@ public class ContentInfo extends AppCompatActivity {
         setContentView(R.layout.activity_content_info);
 
         initializeViews();
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
         apiService = RetrofitClient.getApiService();
 
+        int episodeId = getIntent().getIntExtra("episodeId", -1);
+        if (episodeId == -1) { // episodeId 값 에러
+            Toast.makeText(this, "콘텐츠 정보 불러올 수 없습니다", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        int episodeId = 3;
         loadEpisodeData(episodeId);
-
         setupBottomSheet();
-
-
     }
 
     private void initializeViews() {
@@ -65,6 +73,7 @@ public class ContentInfo extends AppCompatActivity {
         castTextView = findViewById(R.id.castTextView);
         summaryTextView = findViewById(R.id.summaryTextView);
         contentsImage = findViewById(R.id.contentsImage);
+        backButton = findViewById(R.id.backButton);
     }
 
     private void setupBottomSheet() {
@@ -121,11 +130,16 @@ public class ContentInfo extends AppCompatActivity {
         if (episode.getThumbnailUrl() != null && !episode.getThumbnailUrl().isEmpty()) {
             Glide.with(this)
                     .load(episode.getThumbnailUrl())
-                    .placeholder(R.drawable.sample_image2)
-                    .error(R.drawable.sample_image2)
+                    .placeholder(R.drawable.content_info_sample_image)
+                    .error(R.drawable.content_info_sample_image)
                     .into(contentsImage);
         }
 
         createEpisodeButtons(episode.getEpisodeNum());
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

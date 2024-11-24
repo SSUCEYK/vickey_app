@@ -1,5 +1,7 @@
 package com.example.vickey;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import java.util.List;
 
 public class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
     private List<Episode> episodeList;
+    private Context context;
 
     public EpisodeRecyclerViewAdapter(List<Episode> episodes) {
         this.episodeList = episodes;
@@ -22,6 +25,7 @@ public class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecy
     @NonNull
     @Override
     public EpisodeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        context = parent.getContext();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.episode_item, parent, false);
         return new EpisodeViewHolder(view);
     }
@@ -33,6 +37,12 @@ public class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecy
         Glide.with(holder.thumbnailImageView.getContext())
                 .load(episode.getThumbnailUrl())
                 .into(holder.thumbnailImageView);
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ContentInfo.class);
+            intent.putExtra("episodeId", episode.getEpisodeId());
+            context.startActivity(intent);
+        });
     }
 
     @Override
