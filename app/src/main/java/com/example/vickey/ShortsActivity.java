@@ -2,12 +2,18 @@ package com.example.vickey;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +23,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ShortsActivity extends AppCompatActivity {
-
     private ViewPager2 viewPager2;
     private VideoPagerAdapter adapter;
     private String TAG = "ShortsActivity";
+    private ImageButton backButton;
+    private ImageButton likeButton;
+    private ImageButton menuButton;
+    private boolean isLiked = false;
+    private BottomSheetDialog episodeBottomSheet;
+    private Episode currentEpisode;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +72,73 @@ public class ShortsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        initializeButtons();
+    }
+
+    private void initializeButtons() {
+        // 뒤로가기 버튼
+        backButton = findViewById(R.id.shorts_backButton);
+        backButton.setOnClickListener(v -> finish());
+
+        // 좋아요 버튼
+        likeButton = findViewById(R.id.shorts_likeButton);
+        likeButton.setOnClickListener(v -> {
+            isLiked = !isLiked;
+            likeButton.setImageResource(isLiked ?
+                    R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+        });
+
+        // 메뉴 버튼
+        menuButton = findViewById(R.id.shorts_menuButton);
+        menuButton.setOnClickListener(v -> showEpisodeBottomSheet());
+    }
+
+    private void showEpisodeBottomSheet() {
+        episodeBottomSheet = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.episode_bottom_sheet, null);
+        episodeBottomSheet.setContentView(bottomSheetView);
+
+        GridLayout gridLayout = bottomSheetView.findViewById(R.id.shorts_episodeGrid);
+        gridLayout.setColumnCount(7);
+
+        int currentEpisodeIndex = viewPager2.getCurrentItem();
+        int totalEpisodes = currentEpisode.getEpisodeNum(); // Episode 객체에서 총 회차 수 가져오기
+
+        for (int i = 1; i <= totalEpisodes; i++) {
+            Button episodeButton = new Button(this);
+            episodeButton.setText(String.valueOf(i));
+            episodeButton.setTextColor(getResources().getColor(android.R.color.white));
+
+            final int episodeIndex = i - 1;
+            if (episodeIndex == currentEpisodeIndex) {
+                episodeButton.setBackground(getDrawable(R.drawable.episode_button_background_current_episode));
+            } else {
+                episodeButton.setBackground(getDrawable(R.drawable.episode_button_background));
+            }
+
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 100;
+            params.height = 100;
+            params.setMargins(10, 10, 10, 10);
+            episodeButton.setLayoutParams(params);
+
+            episodeButton.setOnClickListener(v -> {
+                if (episodeIndex != currentEpisodeIndex) {
+                    viewPager2.setCurrentItem(episodeIndex, false);
+                    playVideoAtPosition(episodeIndex);
+                    episodeBottomSheet.dismiss();
+                }
+            });
+
+            gridLayout.addView(episodeButton);
+        }
+
+        episodeBottomSheet.show();
     }
 
     private void setupVideoPlayer(Episode episode, int targetVideoNum) {
+        this.currentEpisode = episode;
         try {
             // JSON 파싱
             List<String> videoUrls = parseVideoUrls(episode.getVideoURLs());

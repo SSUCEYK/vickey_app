@@ -74,7 +74,7 @@ public class ContentInfo extends AppCompatActivity {
         castTextView = findViewById(R.id.castTextView);
         summaryTextView = findViewById(R.id.summaryTextView);
         contentsImage = findViewById(R.id.contentsImage);
-        backButton = findViewById(R.id.backButton);
+        backButton = findViewById(R.id.content_info_backButton);
     }
 
     private void setupBottomSheet() {
