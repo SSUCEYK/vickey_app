@@ -45,6 +45,7 @@ public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.Vi
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
+//                    Log.d("S3VideoURI", String.valueOf(Uri.fromFile(videoFile)));
                     holder.videoView.setVideoURI(Uri.fromFile(videoFile)); //다운로드 된 videoFile로 holder에 담긴 video view의 경로를 set up
                     holder.videoView.start();
                 }

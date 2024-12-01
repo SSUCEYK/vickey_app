@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
+    <!-- 슬라이더 이미지 -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageSlider"
         android:layout_width="match_parent"
@@ -13,18 +14,22 @@
         android:contentDescription="@string/content_list_name1"
         android:adjustViewBounds="true"
         app:shapeAppearanceOverlay="@style/Rounded20Corners"
-        android:clickable="true"
-        />
+        android:clickable="true" />
 
-</LinearLayout>
+    <!-- 점 세 개 버튼 -->
+    <ImageButton
+        android:id="@+id/menuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="13dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_more_vert_48_grey"
+        android:contentDescription="@string/menu_button"
+        app:tint="@color/black" />
 
-    <!--<?xml version="1.0" encoding="utf-8"?>-->
-    <!--<ImageView xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--    android:id="@+id/imageSlider"-->
-    <!--    android:layout_width="match_parent"-->
-    <!--    android:layout_height="match_parent"-->
-    <!--    android:contentDescription="@string/app_name"-->
-    <!--    android:scaleType="centerCrop"-->
-    <!--    android:adjustViewBounds="true"-->
-    <!--    android:background="@drawable/radius20_grey"-->
-    <!--    />-->
+</RelativeLayout>
+
+
+
+

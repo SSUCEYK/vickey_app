@@ -112,6 +112,9 @@ dependencies {
     testImplementation ("com.squareup.okhttp3:mockwebserver:4.9.3")
     implementation ("com.h2database:h2:2.1.214")
 
+
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+
 //    implementation ("androidx.credentials:credentials:1.0.0")
 //    implementation ("androidx.credentials:credentials-play-services:1.0.0")
 

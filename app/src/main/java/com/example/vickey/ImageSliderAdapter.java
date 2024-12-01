@@ -3,13 +3,19 @@ package com.example.vickey;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,6 +39,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         return new MyViewHolder(view);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         String url = sliderImage.get(position);
@@ -48,6 +55,45 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             }
         });
 
+        // 점 세 개 버튼 클릭 이벤트
+        holder.menuButton.setOnClickListener(v -> {
+            // 클릭 애니메이션
+            ScaleAnimation scaleAnimation = new ScaleAnimation(
+                    1.0f, 0.9f, // X축 크기 변화 (1.0 → 0.9)
+                    1.0f, 0.9f, // Y축 크기 변화 (1.0 → 0.9)
+                    Animation.RELATIVE_TO_SELF, 0.5f, // X축 중심
+                    Animation.RELATIVE_TO_SELF, 0.5f  // Y축 중심
+            );
+            scaleAnimation.setDuration(50); // 애니메이션 지속 시간
+            scaleAnimation.setFillAfter(true); // 애니메이션 후 상태 유지
+
+            // 애니메이션 시작
+            v.startAnimation(scaleAnimation);
+
+            // 딜레이 후 액티비티 이동
+            v.postDelayed(() -> {
+                Intent intent = new Intent(context, ContentDetailActivity.class);
+                intent.putExtra("imageUrl", url);
+                context.startActivity(intent);
+            }, 50); // 후에 실행
+        });
+
+        holder.menuButton.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    // 클릭 시 색상 변화
+                    holder.menuButton.setColorFilter(ContextCompat.getColor(context, R.color.grey_7), PorterDuff.Mode.SRC_IN);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // 클릭 해제 시 원래 색상 복원
+                    holder.menuButton.clearColorFilter();
+                    break;
+            }
+            return false; // 기본 클릭 이벤트도 동작
+        });
+
+
     }
 
     @Override
@@ -57,10 +103,12 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView imageView;
+        private ImageButton menuButton;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageSlider);
+            menuButton = itemView.findViewById(R.id.menuButton); // 점 세 개 버튼 연결
         }
 
         @SuppressLint("ResourceType")
@@ -73,19 +121,6 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .error(R.raw.thumbnail_goblin)
                     .into(imageView);
-
-//            Glide.with(context)
-//                    .load(imageUrl)
-//                    .apply(new RequestOptions()
-//                            .skipMemoryCache(true)
-//                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                            .error(R.raw.thumbnail_goblin))
-//                    .into(imageView);
-
-//            Picasso.get()
-//                    .load(imageUrl)
-//                    .error(R.raw.thumbnail_goblin)
-//                    .into(imageView);
         }
     }
 }

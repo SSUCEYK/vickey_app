@@ -1,31 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:gravity="center"
     android:padding="8dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/child_image"
+    <!-- 이미지와 점 세 개 버튼을 감싸는 RelativeLayout -->
+    <RelativeLayout
         android:layout_width="132dp"
-        android:layout_height="180dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="컨텐츠"
-        android:adjustViewBounds="true"
-        app:shapeAppearanceOverlay="@style/Rounded15Corners"
-        android:clickable="true"
-        />
+        android:layout_height="180dp">
 
-        <TextView
-            android:id="@+id/child_text"
+        <!-- 이미지 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/child_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="컨텐츠"
+            android:adjustViewBounds="true"
+            app:shapeAppearanceOverlay="@style/Rounded15Corners"
+            android:clickable="true" />
+
+        <!-- 점 세 개 버튼 -->
+        <ImageButton
+            android:id="@+id/menuButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="17sp"
-            android:textColor="@color/white"
-            android:layout_gravity="center"
-            android:text="컨텐츠명"
-            android:layout_marginTop="10dp"
-            />
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert_36_grey"
+            android:contentDescription="Menu Button"
+            app:tint="@color/black" />
+    </RelativeLayout>
 
+    <!-- 텍스트 -->
+    <TextView
+        android:id="@+id/child_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:text="컨텐츠명"
+        android:layout_marginTop="10dp" />
 </LinearLayout>

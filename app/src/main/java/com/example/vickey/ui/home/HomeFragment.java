@@ -85,6 +85,7 @@ public class HomeFragment extends Fragment {
         List<ContentItem> contentItems = new ArrayList<>();
         contentItems.add(new ContentItem("인기콘텐츠", imageUrlShuffle()));
         contentItems.add(new ContentItem("재미있는 콘텐츠", imageUrlShuffle()));
+        contentItems.add(new ContentItem("추천 콘텐츠", imageUrlShuffle()));
 
         // 어댑터 설정
         ParentAdapter mainAdapter = new ParentAdapter(contentItems, requireContext());
@@ -116,56 +117,74 @@ public class HomeFragment extends Fragment {
 
 
     private void setupSlider() {
-        // Image Adapter 설정
-        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), imageUrls));
+        // 가짜 페이지를 추가하기 위해 ImageUrls 수정
+        List<String> modifiedImageUrls = new ArrayList<>(imageUrls);
+        if (!imageUrls.isEmpty()) {
+            // 마지막 이미지를 첫 번째로 복사
+            modifiedImageUrls.add(0, imageUrls.get(imageUrls.size() - 1));
+            // 첫 번째 이미지를 마지막으로 복사
+            modifiedImageUrls.add(imageUrls.get(0));
+        }
 
-        // Stack Animation 설정
-        sliderViewPager.setOffscreenPageLimit(3); //좌, 우까지
+        // Image Adapter 설정
+        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), modifiedImageUrls));
+        sliderViewPager.setOffscreenPageLimit(3); // 좌, 우까지
+
+        // 초기 페이지를 실제 첫 번째 콘텐츠로 설정
+        sliderViewPager.setCurrentItem(1, false);
+
         sliderViewPager.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override
             public void transformPage(@NonNull View page, float position) {
-                float scaleFactor = 0.85f; // 좌우 이미지 크기 비율
-                float alphaFactor = 0.5f;  // 좌우 이미지 투명도 비율
+                float scaleFactor = 0.85f;
+                float alphaFactor = 0.5f;
                 float absPos = Math.abs(position);
 
                 if (position <= -1 || position >= 1) {
-                    // 화면 밖의 페이지는 보이지 않음
                     page.setAlpha(0f);
                 } else if (position == 0) {
-                    // 중앙 페이지는 크기 100%와 투명도 100%
                     page.setAlpha(1f);
                     page.setScaleY(1f);
                 } else {
-                    // 양옆 페이지는 크기를 줄이고 투명도를 낮춤
-                    page.setAlpha(1 - absPos * (1 - alphaFactor)); // 중앙에서 멀어질수록 투명하게
-                    page.setScaleY(1 - absPos * (1 - scaleFactor)); // 중앙에서 멀어질수록 작아지게
+                    page.setAlpha(1 - absPos * (1 - alphaFactor));
+                    page.setScaleY(1 - absPos * (1 - scaleFactor));
                 }
             }
         });
 
-        // 페이지 변경 시 Indicator Update
         sliderViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            private int itemCount = modifiedImageUrls.size();
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    int currentItem = sliderViewPager.getCurrentItem();
+
+                    // 첫 번째 가짜 페이지에 도달한 경우
+                    if (currentItem == 0) {
+                        sliderViewPager.setCurrentItem(itemCount - 2, false); // 마지막 실제 페이지로 이동
+                    }
+
+                    // 마지막 가짜 페이지에 도달한 경우
+                    if (currentItem == itemCount - 1) {
+                        sliderViewPager.setCurrentItem(1, false); // 첫 번째 실제 페이지로 이동
+                    }
+                }
+            }
+
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                setCurrentIndicator(position);
-
-                // 마지막 페이지에 도달했을 때 첫 페이지로 돌아가기
-                if (position == imageUrls.size() - 1) {
-                    sliderViewPager.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            sliderViewPager.setCurrentItem(0, false); // 애니메이션 없이 첫 페이지로 이동
-                        }
-                    }, 2000); // 2초 후에 이동
-                }
+                int actualPosition = (position == 0) ? imageUrls.size() - 1 : (position == modifiedImageUrls.size() - 1) ? 0 : position - 1;
+                setCurrentIndicator(actualPosition);
             }
         });
 
-
-        // Indicator 설정
         setupIndicators(imageUrls.size());
     }
+
 
     private void fetchImages() {
         episodeService.getEpisodeThumbnails().enqueue(new Callback<List<String>>() {
@@ -218,9 +237,7 @@ public class HomeFragment extends Fragment {
     }
 
 
-
     //임시
-
     private List<String> imageUrlShuffle() {
         List<String> contentList = new ArrayList<>();
         contentList.add("https://placehold.co/132x180");

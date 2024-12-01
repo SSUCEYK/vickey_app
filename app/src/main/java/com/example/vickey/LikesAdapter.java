@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,26 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
             }
         });
 
+        // 점 세 개 버튼 클릭 이벤트
+        holder.menuButton.setOnClickListener(v -> {
+            // 애니메이션 효과 추가
+            holder.menuButton.animate()
+                    .scaleX(1.2f) // X축 확대
+                    .scaleY(1.2f) // Y축 확대
+                    .setDuration(150) // 애니메이션 지속 시간
+                    .withEndAction(() -> { // 애니메이션 끝난 후 실행
+                        holder.menuButton.animate()
+                                .scaleX(1.0f) // 원래 크기로 복귀
+                                .scaleY(1.0f)
+                                .setDuration(150)
+                                .start();
+                    }).start();
+
+            // 클릭 후 상세 페이지로 이동
+            Intent intent = new Intent(context, ContentDetailActivity.class);
+            intent.putExtra("imageUrl", url);
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -65,10 +86,12 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        ImageButton menuButton;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.likes_image);
+            menuButton = itemView.findViewById(R.id.menu_button); // 점 세 개 버튼 참조
         }
 
         @SuppressLint("ResourceType")
