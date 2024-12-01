@@ -38,7 +38,7 @@ public class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecy
                 .load(episode.getThumbnailUrl())
                 .into(holder.thumbnailImageView);
 
-        holder.itemView.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> { // 클릭 시 상세 정보 액티비티(ContentInfo.java)로 이동
             Intent intent = new Intent(context, ContentInfo.class);
             intent.putExtra("episodeId", episode.getEpisodeId());
             context.startActivity(intent);
