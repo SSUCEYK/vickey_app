@@ -82,6 +82,11 @@ public class ShortsActivity extends AppCompatActivity {
                 viewPager2.setCurrentItem(startPosition, false);
             }
 
+            // 초기 재생을 위한 약간의 지연 추가
+            viewPager2.post(() -> {
+                playVideoAtPosition(startPosition);  // 시작 위치의 영상 강제 재생
+            });
+
             viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                 private int currentPosition = startPosition;
 

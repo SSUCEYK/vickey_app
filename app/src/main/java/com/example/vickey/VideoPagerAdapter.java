@@ -2,6 +2,7 @@ package com.example.vickey;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
@@ -44,6 +46,11 @@ public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.Vi
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         String videoURL = videoURLs.get(position);
 
+        // 기존 플레이어가 있다면 해제
+        if (holder.playerView.getPlayer() != null) {
+            ((ExoPlayer) holder.playerView.getPlayer()).release();
+        }
+
         // ExoPlayer 설정
         ExoPlayer player = new ExoPlayer.Builder(context).build();
         players.add(player);
@@ -56,16 +63,19 @@ public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.Vi
                     holder.progressBar.setVisibility(View.GONE);
                 }
             }
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                // 에러 처리 추가
+                Log.e("VideoPagerAdapter", "Player error: " + error.getMessage());
+                holder.progressBar.setVisibility(View.GONE);
+            }
         });
-
 
         MediaItem mediaItem = MediaItem.fromUri(Uri.parse(videoURL));
         player.setMediaItem(mediaItem);
 
         holder.playerView.setPlayer(player);
         player.prepare();
-
-
     }
 
 
