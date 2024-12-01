@@ -1,6 +1,8 @@
 package com.example.vickey;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
@@ -125,15 +127,24 @@ public class ShortsActivity extends AppCompatActivity {
 
             episodeButton.setOnClickListener(v -> {
                 if (episodeIndex != currentEpisodeIndex) {
+                    // 현재 재생 중인 영상 정지
+                    pauseVideoAtPosition(currentEpisodeIndex);
+
+                    // ViewPager 페이지 변경
                     viewPager2.setCurrentItem(episodeIndex, false);
-                    playVideoAtPosition(episodeIndex);
+
+                    // 약간의 지연 후 새 영상 재생
+                    viewPager2.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            playVideoAtPosition(episodeIndex);
+                        }
+                    });
                     episodeBottomSheet.dismiss();
                 }
             });
-
             gridLayout.addView(episodeButton);
         }
-
         episodeBottomSheet.show();
     }
 
@@ -193,19 +204,25 @@ public class ShortsActivity extends AppCompatActivity {
     }
 
     private void playVideoAtPosition(int position) {
-        RecyclerView recyclerView = (RecyclerView) viewPager2.getChildAt(0);
-        RecyclerView.ViewHolder viewHolder =
-                recyclerView.findViewHolderForAdapterPosition(position);
+        // 약간의 지연을 주어 ViewHolder가 준비되도록 함
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView recyclerView = (RecyclerView) viewPager2.getChildAt(0);
+                RecyclerView.ViewHolder viewHolder =
+                        recyclerView.findViewHolderForAdapterPosition(position);
 
-        if (viewHolder instanceof VideoPagerAdapter.VideoViewHolder) {
-            VideoPagerAdapter.VideoViewHolder videoViewHolder =
-                    (VideoPagerAdapter.VideoViewHolder) viewHolder;
-            ExoPlayer player = (ExoPlayer) videoViewHolder.playerView.getPlayer();
-            if (player != null) {
-                player.setPlayWhenReady(true);
-                player.seekTo(0);
+                if (viewHolder instanceof VideoPagerAdapter.VideoViewHolder) {
+                    VideoPagerAdapter.VideoViewHolder videoViewHolder =
+                            (VideoPagerAdapter.VideoViewHolder) viewHolder;
+                    ExoPlayer player = (ExoPlayer) videoViewHolder.playerView.getPlayer();
+                    if (player != null) {
+                        player.setPlayWhenReady(true);
+                        player.seekTo(0);
+                    }
+                }
             }
-        }
+        }, 200); // 200ms 지연
     }
 
     private void pauseVideoAtPosition(int position) {
