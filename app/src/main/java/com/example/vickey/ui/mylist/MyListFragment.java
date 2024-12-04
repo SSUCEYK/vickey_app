@@ -15,20 +15,17 @@ import com.example.vickey.databinding.FragmentMylistBinding;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-public class MylistFragment extends Fragment {
+public class MyListFragment extends Fragment {
 
     private FragmentMylistBinding binding;
+//    private MyListViewModel myListViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-//        MylistViewModel dashboardViewModel =
-//                new ViewModelProvider(this).get(MylistViewModel.class);
 
         binding = FragmentMylistBinding.inflate(inflater, container, false);
+//        myListViewModel = new ViewModelProvider(this).get(MyListViewModel.class);
         View root = binding.getRoot();
-
-//        final TextView textView = binding.textMylist;
-//        dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
         TabLayout tabLayout = root.findViewById(R.id.tabLayout);
         ViewPager2 viewPager = root.findViewById(R.id.viewPager);

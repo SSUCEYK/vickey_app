@@ -1,6 +1,7 @@
 package com.example.vickey.ui.mylist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +12,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vickey.HistoryAdapter;
 import com.example.vickey.R;
+import com.example.vickey.api.ApiClient;
+import com.example.vickey.api.ApiService;
+import com.example.vickey.api.models.CheckWatchedResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HistoryFragment extends Fragment {
+
+    private RecyclerView recyclerView;
+    private HistoryAdapter adapter;
+    private ApiService apiService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -26,46 +37,35 @@ public class HistoryFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView_history);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // 어댑터 설정
-        HistoryAdapter adapter = new HistoryAdapter(getContext(), imageUrlShuffle());
-        recyclerView.setAdapter(adapter);
+        apiService = ApiClient.getClient(getContext()).create(ApiService.class);
+        loadUserHistory();
 
         return view;
     }
 
-    // 임시
 
-    // 시청한 에피소드 목록을 반환하는 메서드
-    private int[] getHistoryList() {
-        // 여기에 실제 데이터 로직 추가
+    private void loadUserHistory() {
+        long userId = 1L; // 사용자 ID 예시
+        apiService.getUserHistory(userId).enqueue(new Callback<List<CheckWatchedResponse>>() {
+            @Override
+            public void onResponse(Call<List<CheckWatchedResponse>> call, Response<List<CheckWatchedResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<String> videoThumbnails = response.body().stream()
+                            .map(CheckWatchedResponse::getThumbnailUrl)
+                            .collect(Collectors.toList());
 
+                    // 어댑터 설정
+                    adapter = new HistoryAdapter(getContext(), videoThumbnails);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
 
-        int[] images = new int[] {
-                R.raw.thumbnail_goblin,
-                R.raw.thumbnail_lovefromstar,
-                R.raw.thumbnail_ohmyghost,
-                R.raw.thumbnail_ourbelovedsummer,
-                R.raw.thumbnail_signal,
-                R.raw.thumbnail_vincenzo,
-                R.raw.thumbnail_goblin,
-                R.raw.thumbnail_lovefromstar,
-                R.raw.thumbnail_ohmyghost,
-                R.raw.thumbnail_ourbelovedsummer,
-                R.raw.thumbnail_signal,
-                R.raw.thumbnail_vincenzo
-        };
-
-        return images;
+            @Override
+            public void onFailure(Call<List<CheckWatchedResponse>> call, Throwable t) {
+                // 에러 처리
+                Log.e("HistoryFragment", "Failed to load history", t);
+            }
+        });
     }
 
-    private List<String> imageUrlShuffle() {
-        List<String> contentList = new ArrayList<>();
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        Collections.shuffle(contentList);
-        return contentList;
-    }
 }

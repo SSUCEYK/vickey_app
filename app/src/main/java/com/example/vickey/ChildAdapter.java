@@ -12,22 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.vickey.api.models.Episode;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHolder> {
 
-    private List<String> imageUrlList;
-    private List<String> nestedItemTextList;
+    private final List<Episode> episodes;
 
-    public ChildAdapter(List<String> nestedItemTextList, List<String> imageUrlList) {
-        this.nestedItemTextList = nestedItemTextList;
-        this.imageUrlList = imageUrlList;
-    }
-
-    public ChildAdapter(List<String> imageUrlList) {
-        this.imageUrlList = imageUrlList;
+    public ChildAdapter(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 
     public static class NestedViewHolder extends RecyclerView.ViewHolder {
@@ -53,8 +48,10 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
     @SuppressLint("ResourceType")
     @Override
     public void onBindViewHolder(NestedViewHolder holder, int position) {
-        String imageUrl = imageUrlList.get(position);
-//        String itemName = nestedItemTextList.get(position);
+
+        Episode episode = episodes.get(position);
+        String imageUrl = episode.getThumbnailUrl();
+        String title = episode.getTitle();
 
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
@@ -64,7 +61,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
                 .into(holder.imageView);
 
         // 텍스트 설정
-//        holder.textView.setText(itemName);
+        holder.textView.setText(title);
 
         // 점 세 개 버튼 클릭 이벤트
         holder.menuButton.setOnClickListener(v -> {
@@ -91,6 +88,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
 
     @Override
     public int getItemCount() {
-        return imageUrlList.size();
+        return episodes.size();
     }
+
 }

@@ -46,4 +46,5 @@
         android:gravity="center"
         android:text="컨텐츠명"
         android:layout_marginTop="10dp" />
+
 </LinearLayout>

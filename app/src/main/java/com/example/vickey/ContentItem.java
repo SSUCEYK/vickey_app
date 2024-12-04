@@ -1,26 +1,23 @@
 package com.example.vickey;
+
+import com.example.vickey.api.models.Episode;
+
 import java.util.List;
 
 public class ContentItem {
-    private String title;
-    private List<String> imageUrlList;
-//    private List<String> itemTextList;
+    private String name; // 섹션 제목
+    private List<Episode> episodes; // 각 섹션의 Episode 리스트
 
-    public ContentItem(String title, List<String> imageUrlList) { //, List<String> itemTextList
-        this.title = title;
-        this.imageUrlList = imageUrlList;
-//        this.itemTextList = itemTextList;
+    public ContentItem(String name, List<Episode> episodes) {
+        this.name = name;
+        this.episodes = episodes;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-//    public List<String> getItemTextList() {
-//        return itemTextList;
-//    }
-
-    public List<String> getImageUrlList() {
-        return imageUrlList;
+    public List<Episode> getEpisodes() {
+        return episodes;
     }
 }

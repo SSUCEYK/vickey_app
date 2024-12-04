@@ -22,7 +22,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     private Context context;
     private List<String> contentImages;
-//    private int[] contentImages;
 
     public HistoryAdapter(Context context, List<String> contentImages) {
         this.context = context;
@@ -38,24 +37,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-//        int imageResId = contentImages[position];
-//        holder.contentImage.setImageResource(imageResId);
 
         String url = contentImages.get(position);
         holder.bindImage(url);
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Intent를 통해 새로운 액티비티 실행
-                // 좋아요 컨텐츠 -> 좋아요 에피소드 리스트 보여주는 액티비티
-                Intent intent = new Intent(context, ShortsActivity.class);
-//                intent.putExtra("imageResId", imageResId);
-                intent.putExtra("imageUrl", url);
-                context.startActivity(intent);
-            }
+        holder.imageView.setOnClickListener(v -> {
+            // 비디오 플레이 화면으로 이동
+            Intent intent = new Intent(context, ShortsActivity.class);
+            //intent.putExtra("videoUrl", videoUrl); // 비디오 URL 전달
+            context.startActivity(intent);
         });
-
 
         // 점 세 개 버튼 클릭 이벤트
         holder.menuButton.setOnClickListener(v -> {
@@ -74,7 +65,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
             // 클릭 후 상세 페이지로 이동
             Intent intent = new Intent(context, ContentDetailActivity.class);
-            intent.putExtra("imageUrl", url);
+            //intent.putExtra("Episode", episode);
             context.startActivity(intent);
         });
 

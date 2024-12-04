@@ -1,5 +1,6 @@
 package com.example.vickey;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -11,12 +12,17 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import java.util.List;
+
 public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapter.ContentViewHolder> {
 
-    private int[] contentImages;
+    private List<String> contentImages;
     private Context context;
 
-    public LikesEpisodeAdapter(int[] contentImages, Context context) {
+    public LikesEpisodeAdapter(List<String> contentImages, Context context) {
         this.contentImages = contentImages;
         this.context = context;
     }
@@ -31,18 +37,15 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
     @Override
     public void onBindViewHolder(@NonNull LikesEpisodeAdapter.ContentViewHolder holder, int position) {
 
-        int imageResId = contentImages[position];
-        holder.contentImage.setImageResource(imageResId);
+        String url = contentImages.get(position);
+        Glide.with(context).clear(holder.contentImage); // Glide 이미지 로딩 전에 이전 이미지 초기화
+        holder.bindImage(url);
 
-        holder.contentImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Intent를 통해 새로운 액티비티 실행
-                // 좋아요 컨텐츠 -> 좋아요 에피소드 리스트 보여주는 액티비티
-                Intent intent = new Intent(context, ShortsActivity.class);
-                intent.putExtra("imageResId", imageResId);
-                context.startActivity(intent);
-            }
+        holder.contentImage.setOnClickListener(v-> {
+            // Intent를 통해 새로운 액티비티 실행 : 좋아요 컨텐츠 -> 좋아요 에피소드 리스트 보여주는 액티비티
+            Intent intent = new Intent(context, ShortsActivity.class);
+            //intent.putExtra("episode", episode);
+            context.startActivity(intent);
         });
 
         // 점 세 개 버튼 클릭 이벤트
@@ -62,17 +65,17 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
 
             // 클릭 후 ContentDetailActivity로 이동
             Intent intent = new Intent(context, ContentDetailActivity.class);
-            intent.putExtra("imageResId", imageResId);
+            //intent.putExtra("episode", episode);
             context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return contentImages.length;
+        return contentImages.size();
     }
 
-    static class ContentViewHolder extends RecyclerView.ViewHolder {
+    class ContentViewHolder extends RecyclerView.ViewHolder {
         ImageView contentImage;
         ImageButton menuButton;
 
@@ -80,6 +83,17 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
             super(itemView);
             contentImage = itemView.findViewById(R.id.likes_episode_image);
             menuButton = itemView.findViewById(R.id.menu_button); // 점 세 개 버튼 참조
+        }
+
+        @SuppressLint("ResourceType")
+        public void bindImage(String imageUrl) {
+
+            Glide.with(context)
+                    .load(imageUrl)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .error(R.raw.thumbnail_goblin)
+                    .into(contentImage);
         }
     }
 

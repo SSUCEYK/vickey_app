@@ -1,6 +1,5 @@
 package com.example.vickey;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,7 @@ public class ParentAdapter extends RecyclerView.Adapter<ParentAdapter.ContentVie
 
     private List<ContentItem> contentList;
 
-    public ParentAdapter(List<ContentItem> contentList, Context context) {
+    public ParentAdapter(List<ContentItem> contentList) {
         this.contentList = contentList;
     }
 
@@ -43,10 +42,10 @@ public class ParentAdapter extends RecyclerView.Adapter<ParentAdapter.ContentVie
         ContentItem item = contentList.get(position);
 
         // TextView에 데이터 설정
-        holder.contentListText.setText(item.getTitle());
+        holder.contentListText.setText(item.getName());
 
         // 내부 RecyclerView에 어댑터 설정
-        ChildAdapter childAdapter = new ChildAdapter(item.getImageUrlList()); //, item.getItemTextList()
+        ChildAdapter childAdapter = new ChildAdapter(item.getEpisodes());
         holder.contentListRV.setAdapter(childAdapter);
         holder.contentListRV.setLayoutManager(new LinearLayoutManager(holder.contentListRV.getContext(), LinearLayoutManager.HORIZONTAL, false));
     }

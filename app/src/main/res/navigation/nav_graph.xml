@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/navigation_mylist"
-        android:name="com.example.vickey.ui.mylist.MylistFragment"
+        android:name="com.example.vickey.ui.mylist.MyListFragment"
         android:label="@string/title_mylist"
         tools:layout="@layout/fragment_mylist" />
 

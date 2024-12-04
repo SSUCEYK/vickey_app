@@ -11,12 +11,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vickey.LikesAdapter;
 import com.example.vickey.R;
+import com.example.vickey.api.ApiClient;
+import com.example.vickey.api.ApiService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LikesFragment extends Fragment {
+
+    private RecyclerView recyclerView;
+    private LikesAdapter adapter;
+    private ApiService apiService;
+    private Map<Long, String> likedEpisodes;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -26,41 +37,32 @@ public class LikesFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView_likes);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // 어댑터 설정
-        LikesAdapter adapter = new LikesAdapter(getContext(), imageUrlShuffle());
-        recyclerView.setAdapter(adapter);
+        apiService = ApiClient.getClient(getContext()).create(ApiService.class);
+        loadLikedEpisodes();
 
         return view;
     }
 
-    // 임시
+    private void loadLikedEpisodes() {
+        long userId = 1L; // 사용자 ID (예시)
+        apiService.getLikedEpisodes(userId).enqueue(new Callback<Map<Long, String>>() {
+            @Override
+            public void onResponse(Call<Map<Long, String>> call, Response<Map<Long, String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    likedEpisodes = response.body();
 
-    // 좋아요한 목록을 반환하는 메서드
-    private int[] getLikesList() {
-        // 여기에 실제 데이터 로직 추가
+                    // 어댑터 설정
+                    List<String> episodeThumbnails = new ArrayList<>(likedEpisodes.values());
+                    adapter = new LikesAdapter(getContext(), episodeThumbnails);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
 
-        int[] images = new int[] {
-                R.raw.thumbnail_goblin,
-                R.raw.thumbnail_lovefromstar,
-                R.raw.thumbnail_ohmyghost,
-                R.raw.thumbnail_ourbelovedsummer,
-                R.raw.thumbnail_signal,
-                R.raw.thumbnail_vincenzo
-        };
-
-        return images;
-    }
-
-    private List<String> imageUrlShuffle() {
-        List<String> contentList = new ArrayList<>();
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        contentList.add("https://placehold.co/132x180");
-        Collections.shuffle(contentList);
-        return contentList;
+            @Override
+            public void onFailure(Call<Map<Long, String>> call, Throwable t) {
+                // 에러 처리
+            }
+        });
     }
 
 }
