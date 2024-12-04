@@ -26,10 +26,13 @@ import java.util.List;
 public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.MyViewHolder> {
     private Context context;
     private List<String> sliderImage;
+    private final String TAG = "ImageSliderAdapter";
 
     public ImageSliderAdapter(Context context, List<String> sliderImage) {
         this.context = context;
         this.sliderImage = sliderImage;
+
+        Log.d(TAG, "sliderImage urls: " + sliderImage);
     }
 
     @NonNull
@@ -42,8 +45,13 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Log.d(TAG, "Position: " + position + ", Total Items: " + sliderImage.size());
+
         String url = sliderImage.get(position);
+
+        Glide.with(context).clear(holder.imageView); // Glide 이미지 로딩 전에 이전 이미지 초기화
         holder.bindImage(url);
+
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,8 +121,8 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
         @SuppressLint("ResourceType")
         public void bindImage(String imageUrl) {
-//            imageView.setImageResource(imageResId);
             Log.d("ImageSliderAdapter", imageUrl);
+
             Glide.with(context)
                     .load(imageUrl)
                     .skipMemoryCache(true)
@@ -123,4 +131,12 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .into(imageView);
         }
     }
+
+    // 데이터 갱신 메서드 추가
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateData(List<String> newImages) {
+        this.sliderImage = newImages;
+        notifyDataSetChanged(); // 어댑터에 변경 알림
+    }
+
 }

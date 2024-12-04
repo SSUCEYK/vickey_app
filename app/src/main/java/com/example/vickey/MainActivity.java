@@ -61,23 +61,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.actionbar_menu, menu);
-//        Log.d(TAG, "onCreateOptionsMenu called");
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        if (item.getItemId() == R.id.search) {
-//            Log.d(TAG, "Search menu item clicked");
-//            // 추가적인 행동 정의
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
     private void getHashKey(){
         PackageInfo packageInfo = null;
         try {
