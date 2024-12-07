@@ -2,6 +2,7 @@ package com.example.vickey.ui.home;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,13 +25,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.vickey.MainActivity;
 import com.example.vickey.adapter.ImageSliderAdapter;
 import com.example.vickey.adapter.ParentAdapter;
 import com.example.vickey.R;
+import com.example.vickey.adapter.SearchAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.databinding.FragmentHomeBinding;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +53,9 @@ public class HomeFragment extends Fragment {
     private final String TAG = "HomeFragment";
     List<ContentItem> contentItems = new ArrayList<>();
     private HomeViewModel homeViewModel;
+
+    private RecyclerView searchRecyclerView; // 검색을 위한 RecyclerView
+    private SearchAdapter searchAdapter; // 그에 해당하는 어댑터
 
     private final int sliderSize = 5;
     private final int contentsListSize = 10;
@@ -85,6 +97,82 @@ public class HomeFragment extends Fragment {
         loadDataOnce(); // 초기 데이터 로드 메서드
         setupMenuProvider(view); // (검색 액션바) 메뉴 설정
 
+
+        // 검색 결과를 위한 RecyclerView 설정
+        searchRecyclerView = binding.searchResultRecyclerView;
+        searchRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        searchAdapter = new SearchAdapter(new ArrayList<>());
+        searchRecyclerView.setAdapter(searchAdapter);
+
+        //검색
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.actionbar_menu, menu);
+                Log.d(TAG, "Menu created: " + menu.size()); // 메뉴 아이템 수 출력
+                MenuItem menuItem = menu.findItem(R.id.search);
+                SearchView searchView = (SearchView) menuItem.getActionView();
+                searchView.setQueryHint(getString(R.string.search_query_hint));
+
+                // SearchView 스타일 설정
+                searchView.setBackgroundResource(android.R.color.transparent);
+
+                // SearchView 리스너 설정
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    private Handler handler = new Handler();
+                    private Runnable searchRunnable;
+
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        performSearch(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (searchRunnable != null) {
+                            handler.removeCallbacks(searchRunnable);
+                        }
+
+                        // 검색어가 비어있으면 즉시 결과 초기화
+                        if (newText.trim().isEmpty()) {
+                            searchAdapter.updateEpisodes(new ArrayList<>());
+                        }
+
+                        searchRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                performSearch(newText);
+                            }
+                        };
+
+                        handler.postDelayed(searchRunnable, 300);
+                        return true;
+                    }
+                });
+
+                // SearchView 확장/축소 리스너
+                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        // 검색 시작할 때의 UI 처리
+                        showSearchUI();
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        // 검색 종료할 때의 UI 처리
+                        hideSearchUI();
+                        return true;
+                    }
+                });
+            }
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                return false;
+            }
+        }, getViewLifecycleOwner());
     }
 
     private void observeViewModel() {
@@ -290,4 +378,62 @@ public class HomeFragment extends Fragment {
             }
         }, getViewLifecycleOwner());
     }
+
+    // 검색 UI 관련 메서드들
+    private void showSearchUI() {
+        // 검색 결과를 표시할 RecyclerView를 보이게 하고
+        // 기존 컨텐츠(슬라이더, 리사이클러뷰 등)를 숨김
+        // ! 만약 제대로 안숨겨진다면 여기서 binding, View.GONE로 숨김
+        binding.searchResultRecyclerView.setVisibility(View.VISIBLE);
+        binding.sliderViewPager.setVisibility(View.GONE);
+        binding.layoutIndicators.setVisibility(View.GONE);
+        binding.mainRecyclerView.setVisibility(View.GONE);
+
+        ((MainActivity) requireActivity()).setBottomNavVisibility(View.GONE);
+    }
+
+    private void hideSearchUI() {
+        // 검색 결과를 숨기고 기존 컨텐츠를 다시 보이게 함
+        // ! 만약 제대로 안보여진다면 여기서 binding, View.Visible로 보여줌
+        binding.searchResultRecyclerView.setVisibility(View.GONE);
+        binding.sliderViewPager.setVisibility(View.VISIBLE);
+        binding.layoutIndicators.setVisibility(View.VISIBLE);
+        binding.mainRecyclerView.setVisibility(View.VISIBLE);
+        ((MainActivity) requireActivity()).setBottomNavVisibility(View.VISIBLE);
+    }
+
+    private void performSearch(String query) {
+        if (query.trim().isEmpty()) {
+            // 검색어가 비어있을 때 처리
+            return;
+        }
+
+        // API 호출 및 결과 처리
+        ApiService apiService = ApiClient.getApiService(this);
+        apiService.searchEpisodes(query).enqueue(new Callback<List<Episode>>() {
+            @Override
+            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+                if (response.isSuccessful() && isAdded()) {
+                    List<Episode> episodes = response.body();
+                    // 검색 결과를 RecyclerView에 표시
+                    updateSearchResults(episodes);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Episode>> call, Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(),
+                            "검색 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void updateSearchResults(List<Episode> episodes) {
+        if (searchAdapter != null) {
+            searchAdapter.updateEpisodes(episodes);
+        }
+    }
+
 }

@@ -61,12 +61,6 @@ public interface ApiService {
     @GET("api/history/user/{userId}")
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") Long userId);
 
-    @POST("/api/users/register") // Spring 서버의 엔드포인트
-    Call<Void> registerUser(@Body User user); // User 객체 전송
-
-    @GET("api/users/status")
-    Call<UserStatus> getUserStatus(@Query("uid") String uid);
-
 }
 
 

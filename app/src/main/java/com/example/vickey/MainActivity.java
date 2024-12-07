@@ -45,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // BottomNavigationView 제어를 위한 메서드 추가
+    public void setBottomNavVisibility(int visibility) {
+        binding.navView.setVisibility(visibility);
+    }
+
+
     private void testKNetwork(){
         // NetworkRequest를 이용해 서버에 요청
         new Thread(() -> {
