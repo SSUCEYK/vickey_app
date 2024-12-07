@@ -2,8 +2,10 @@ package com.example.vickey.api;
 
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.api.models.Like;
+import com.example.vickey.api.models.User;
 import com.example.vickey.api.responseDTO.CheckWatchedResponse;
 import com.example.vickey.api.responseDTO.LikedVideosResponse;
+import com.example.vickey.signup.UserStatus;
 
 import java.util.List;
 
@@ -61,6 +63,11 @@ public interface ApiService {
     @GET("api/history/user/{userId}")
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") Long userId);
 
+    @POST("/api/users/register") // Spring 서버의 엔드포인트
+    Call<Void> registerUser(@Body User user); // User 객체 전송
+
+    @GET("api/users/status")
+    Call<UserStatus> getUserStatus(@Query("uid") String uid);
 }
 
 

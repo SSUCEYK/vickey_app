@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--안드로이드 클라이언트에서 http 접속을 위함. AndroidManifest.xml의 application 태그에 추가될 파일-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain> <!-- DB 주소에 따라 달라짐 -->
+        <domain includeSubdomains="true">192.168.0.63</domain> <!-- 접속 주소에 따라 달라짐 -->
+    </domain-config>
+</network-security-config>
