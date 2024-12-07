@@ -1,16 +1,19 @@
 package com.example.vickey;
 
-import android.content.ActivityNotFoundException;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.webkit.CookieManager;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +24,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     private WebView webView;
     private boolean isPaymentCompleted = false; // 결제 완료 여부
+    private static final String TAG = "WebViewActivity"; // 로그 태그
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,46 +32,70 @@ public class WebViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_webview);
 
         webView = findViewById(R.id.webView);
+        setupWebView();
+        loadPaymentUrl();
+        setupTouchListener();
+    }
+
+    private void setupWebView() {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
+        // Enable popup support
+        webSettings.setSupportMultipleWindows(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+
+        // Cookie settings
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(webView, true);
 
+        webView.setWebViewClient(new CustomWebViewClient());
+        webView.setWebChromeClient(new CustomWebChromeClient());
+    }
+
+    private void loadPaymentUrl() {
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         String uid = sharedPreferences.getString("uid", null);
-
-        String url = getIntent().getStringExtra("url");
         String subscriptionType = getIntent().getStringExtra("subscriptionType");
 
-        if (url != null) {
-            url = "http://192.168.0.63:8080/pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
-            webView.setWebViewClient(new CustomWebViewClient());
-            webView.loadUrl(url);
-        }
+        String url = "http://192.168.0.63:8080/pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
+        Log.d(TAG, "Loading URL: " + url);
+        webView.loadUrl(url);
+    }
+
+    private void setupTouchListener() {
+        webView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP && isPaymentCompleted) {
+                navigateToMainActivity();
+                return true;
+            }
+            return false;
+        });
     }
 
     private class CustomWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            // `intent://` URL 처리
+            Log.d(TAG, "shouldOverrideUrlLoading: " + url);
+
             if (url.startsWith("intent://")) {
                 try {
                     Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-                    if (intent != null) {
+                    if (intent != null && !isFinishing()) {
                         startActivity(intent);
                         return true;
                     }
                 } catch (Exception e) {
                     String fallbackUrl = Uri.parse(url).getQueryParameter("browser_fallback_url");
-                    if (fallbackUrl != null) {
+                    if (fallbackUrl != null && !isFinishing()) {
                         Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl));
                         startActivity(fallbackIntent);
                     }
                 }
                 return true;
             }
+
             view.loadUrl(url);
             return true;
         }
@@ -75,30 +103,109 @@ public class WebViewActivity extends AppCompatActivity {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
+            Log.d(TAG, "Page finished loading: " + url);
 
-            // 결제 성공 URL 확인
-            if (url.contains("kakao/success")) {
+            if (url.contains("/success") || url.contains("kakao/success")) {
                 isPaymentCompleted = true;
-                navigateToMainActivity(); // 결제 성공 시 메인 페이지로 이동
+                if (url.contains("kakao/success")) {
+                    navigateToMainActivity();
+                }
             }
         }
     }
 
+    private class CustomWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onCreateWindow(WebView view, boolean isDialog,
+                                      boolean isUserGesture, Message resultMsg) {
+            if (isFinishing()) return false;
+
+            WebView newWebView = new WebView(WebViewActivity.this);
+            setupNewWebViewSettings(newWebView);
+
+            Dialog dialog = createWebViewDialog(newWebView);
+
+            WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+            transport.setWebView(newWebView);
+            resultMsg.sendToTarget();
+
+            return true;
+        }
+
+        private void setupNewWebViewSettings(WebView webView) {
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            webSettings.setSupportMultipleWindows(true);
+            webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        }
+
+        private Dialog createWebViewDialog(WebView webView) {
+            Dialog dialog = new Dialog(WebViewActivity.this);
+            dialog.setContentView(webView);
+
+            dialog.setOnDismissListener(dialogInterface -> {
+                if (!isFinishing()) {
+                    webView.destroy();
+                }
+            });
+
+            if (!isFinishing()) {
+                dialog.show();
+            }
+
+            return dialog;
+        }
+    }
+
     private void navigateToMainActivity() {
-        Intent intent = new Intent(WebViewActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+        if (!isFinishing()) {
+            Intent intent = new Intent(WebViewActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     @Override
     public void onBackPressed() {
         if (webView.canGoBack() && !isPaymentCompleted) {
-            webView.goBack(); // WebView 뒤로 가기
+            webView.goBack();
         } else if (isPaymentCompleted) {
-            navigateToMainActivity(); // 결제가 완료된 경우 메인 화면으로 이동
+            navigateToMainActivity();
         } else {
-            super.onBackPressed(); // 기본 뒤로 가기
+            super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        if (webView != null) {
+            webView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (webView != null) {
+            webView.onResume();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (webView != null) {
+            webView.stopLoading();
+            webView.clearHistory();
+            webView.clearCache(true);
+            webView.loadUrl("about:blank");
+            webView.onPause();
+            webView.removeAllViews();
+            webView.destroyDrawingCache();
+            webView.destroy();
+            webView = null;
+        }
+        super.onDestroy();
     }
 }
