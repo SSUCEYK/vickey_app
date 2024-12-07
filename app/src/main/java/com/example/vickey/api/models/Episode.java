@@ -4,10 +4,11 @@ public class Episode {
     private long episodeId;
     private String title;
     private String thumbnailUrl;
-    private int episodeCount;
+    private int episodeCount; // !episode 총 회차 갯수?
     private String description;
     private String releasedDate;
-    private String castList;
+    private String castList; // 연출
+    private String videoURLs; // 비디오 url 목록 (재생을 위해 필요, 추가하였음)
 
 
     public long getEpisodeId() {
@@ -64,5 +65,13 @@ public class Episode {
 
     public void setCastList(String castList) {
         this.castList = castList;
+    }
+
+    public String getVideoURLs() {
+        return videoURLs;
+    }
+
+    public void setVideoURLs(String videoURLs) {
+        this.videoURLs = videoURLs;
     }
 }

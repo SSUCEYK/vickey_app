@@ -37,6 +37,14 @@ public interface ApiService {
     @GET("api/episodes/{id}")
     Call<Episode> getEpisodeById(@Path("id") Long id);
 
+    // 에피소드 검색
+    @GET("/api/episodes/search")
+    Call<List<Episode>> searchEpisodes(@Query("searchQuery") String searchQuery);
+
+    // 에피소드 상세 정보
+    @GET("api/episodes/contentInfo")
+    Call<Episode> contentInfoEpisodes(@Query("contentInfoQuery") Integer contentInfoQuery);
+
     // ID 리스트로 title 리스트 가져오기
     @POST("api/getEpisodeTitles")
     Call<List<String>> getEpisodeTitles(@Body List<Long> episodeIds);
@@ -52,6 +60,12 @@ public interface ApiService {
 
     @GET("api/history/user/{userId}")
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") Long userId);
+
+    @POST("/api/users/register") // Spring 서버의 엔드포인트
+    Call<Void> registerUser(@Body User user); // User 객체 전송
+
+    @GET("api/users/status")
+    Call<UserStatus> getUserStatus(@Query("uid") String uid);
 
 }
 

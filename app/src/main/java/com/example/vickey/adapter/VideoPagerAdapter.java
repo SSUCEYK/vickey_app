@@ -2,31 +2,37 @@ package com.example.vickey.adapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.example.vickey.R;
-import com.example.vickey.S3Helper;
 
-import java.io.File;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.VideoViewHolder> {
-    private List<String> videoKeys; // S3 비디오 키 리스트
-    private Context context;
-    private S3Helper s3Helper;
 
-    public VideoPagerAdapter(Context context, List<String> videoKeys) {
+public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.VideoViewHolder> {
+    private List<String> videoURLs; // CDN URL 리스트
+    private Context context;
+    private List<ExoPlayer> players;
+
+
+    public VideoPagerAdapter(Context context, List<String> videoURLs) {
         this.context = context;
-        this.videoKeys = videoKeys;
-        this.s3Helper = new S3Helper(context);
+        this.videoURLs = (videoURLs != null) ? videoURLs : new ArrayList<>();
+        this.players = new ArrayList<>();
     }
 
     @NonNull
@@ -38,49 +44,75 @@ public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.Vi
 
     //RecyclerView가 내부적으로 항목을 배치할 때 LayoutManager를 통해 onBindViewHolder()를 자동으로 호출
     @Override
-    public void onBindViewHolder(@NonNull final VideoViewHolder holder, int position) {
-        String videoKey = videoKeys.get(position);
-        File videoFile = new File(context.getCacheDir(), "video_" + position + ".mp4"); //캐시 디렉토리에 순서대로 저장
+    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
+        String videoURL = videoURLs.get(position);
 
-        // S3에서 파일 다운로드 후 VideoView에 재생
-        s3Helper.downloadFile(context.getString(R.string.AWSS3BucketName), videoKey, videoFile, new TransferListener() {
+        // 기존 플레이어가 있다면 해제
+        if (holder.playerView.getPlayer() != null) {
+            ((ExoPlayer) holder.playerView.getPlayer()).release();
+        }
+
+        // ExoPlayer 설정
+        ExoPlayer player = new ExoPlayer.Builder(context).build();
+        players.add(player);
+
+        player.addListener(new Player.Listener() {
             @Override
-            public void onStateChanged(int id, TransferState state) {
-                if (state == TransferState.COMPLETED) {
-//                    Log.d("S3VideoURI", String.valueOf(Uri.fromFile(videoFile)));
-                    holder.videoView.setVideoURI(Uri.fromFile(videoFile)); //다운로드 된 videoFile로 holder에 담긴 video view의 경로를 set up
-                    holder.videoView.start();
+            public void onPlaybackStateChanged(int state) {
+                if (state == Player.STATE_READY) {
+                    // 영상이 준비되면 로딩 숨기기
+                    holder.progressBar.setVisibility(View.GONE);
                 }
             }
-
             @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                // 진행 상황 표시 가능
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                ex.printStackTrace();
+            public void onPlayerError(PlaybackException error) {
+                // 에러 처리 추가
+                Log.e("VideoPagerAdapter", "Player error: " + error.getMessage());
+                holder.progressBar.setVisibility(View.GONE);
             }
         });
+
+        MediaItem mediaItem = MediaItem.fromUri(Uri.parse(videoURL));
+        player.setMediaItem(mediaItem);
+
+        holder.playerView.setPlayer(player);
+        player.prepare();
+    }
+
+
+    @Override
+    public void onViewRecycled(@NonNull VideoViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder.playerView.getPlayer() != null) {
+            ExoPlayer player = (ExoPlayer) holder.playerView.getPlayer();
+            player.stop();
+            player.release();
+            players.remove(player);
+        }
     }
 
     // RecyclerView가 처음 화면에 나타날 때, 이 메소드를 호출해서 전체 항목의 수 (표시할 항목의 총 개수)를 확인
     // 데이터가 변경되거나 항목이 추가/삭제될 때도 이 메소드가 호출됨
     @Override
     public int getItemCount() {
-        return videoKeys.size();
+        return videoURLs.size();
     }
 
-    static class VideoViewHolder extends RecyclerView.ViewHolder {
-        VideoView videoView;
+    public void releaseAllPlayers() {
+        for (ExoPlayer player : players) {
+            player.release();
+        }
+        players.clear();
+    }
 
-        //생성자에서 해당 항목의 뷰를 초기화
-        //itemView(각 항목의 루트 뷰)로부터 findViewById()를 사용해 VideoView를 찾고 할당
-        //이후 videoView는 계속 재사용됨
+    public static class VideoViewHolder extends RecyclerView.ViewHolder {
+        public PlayerView playerView;
+        public ProgressBar progressBar;
+
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
-            videoView = itemView.findViewById(R.id.videoView);
+            playerView = itemView.findViewById(R.id.playerView);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }

@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <androidx.viewpager2.widget.ViewPager2
         android:layout_width="0dp"
@@ -12,9 +13,52 @@
         android:orientation="vertical"
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <!-- 뒤로가기 버튼 (좌측 상단) -->
+    <ImageButton
+        android:id="@+id/shorts_backButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_back"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- 우측 하단 버튼들을 위한 수직 LinearLayout -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 좋아요 버튼 -->
+        <ImageButton
+            android:id="@+id/shorts_likeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_like_unfilled"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp" />
+
+        <!-- 메뉴 버튼 -->
+        <ImageButton
+            android:id="@+id/shorts_menuButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_more_vert"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackground" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
