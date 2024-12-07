@@ -1,11 +1,11 @@
 package com.example.vickey.api;
 
-import com.example.vickey.api.models.CheckWatchedResponse;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.api.models.Like;
+import com.example.vickey.api.responseDTO.CheckWatchedResponse;
+import com.example.vickey.api.responseDTO.LikedVideosResponse;
 
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -44,14 +44,11 @@ public interface ApiService {
     @GET("api/likes/user/{userId}")
     Call<List<Like>> getUserLikes(@Path("userId") Long userId);
 
-//    @GET("api/history/user/{userId}")
-//    Call<List<CheckWatched>> getUserHistory(@Path("userId") Long userId);
-
     @GET("api/likes/user/{userId}/episodes")
-    Call<Map<Long, String>> getLikedEpisodes(@Path("userId") Long userId);
+    Call<List<Episode>> getLikedEpisodes(@Path("userId") Long userId);
 
     @GET("api/likes/user/{userId}/episodes/{episodeId}")
-    Call<List<String>> getLikedVideosByEpisode(@Path("userId") Long userId, @Path("episodeId") Long episodeId);
+    Call<List<LikedVideosResponse>> getLikedVideosByEpisode(@Path("userId") Long userId, @Path("episodeId") Long episodeId);
 
     @GET("api/history/user/{userId}")
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") Long userId);

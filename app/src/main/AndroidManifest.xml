@@ -32,9 +32,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".LoginWithEmailActivity"/>
-        <activity android:name=".SignupWithEmailActivity"/>
+        <activity android:name=".signup.LoginActivity"/>
+        <activity android:name=".signup.LoginWithEmailActivity"/>
+        <activity android:name=".signup.SignupWithEmailActivity"/>
 
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
@@ -49,7 +49,7 @@
         </activity>
 
         <activity android:name=".ShortsActivity"/>
-        <activity android:name=".LikesEpisodeActivity"/>
+        <activity android:name=".ui.mylist.LikesEpisodeActivity"/>
         <activity android:name=".ContentDetailActivity"/>
 
         <service

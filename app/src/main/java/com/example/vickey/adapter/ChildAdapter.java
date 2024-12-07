@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.vickey.ContentDetailActivity;
+import com.example.vickey.R;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -55,10 +57,12 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
 
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
                 .skipMemoryCache(true)
                 .error(R.raw.thumbnail_goblin)
                 .into(holder.imageView);
+
+//              .diskCacheStrategy(DiskCacheStrategy.NONE)
 
         // 텍스트 설정
         holder.textView.setText(title);

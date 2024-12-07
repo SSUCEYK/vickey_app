@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

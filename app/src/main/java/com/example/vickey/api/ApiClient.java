@@ -9,6 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     private static Retrofit retrofit = null;
+    private static ApiService apiService = null;
 
     public static Retrofit getClient(Context context) {
         if (retrofit == null) {
@@ -19,5 +20,12 @@ public class ApiClient {
                     .build();
         }
         return retrofit;
+    }
+
+    public static ApiService getApiService(Context context) {
+        if (apiService == null) {
+            apiService = getClient(context).create(ApiService.class);
+        }
+        return apiService;
     }
 }

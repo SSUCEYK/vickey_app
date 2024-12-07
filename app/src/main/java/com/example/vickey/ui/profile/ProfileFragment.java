@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.vickey.LoginActivity;
+import com.example.vickey.signup.LoginActivity;
 import com.example.vickey.R;
 import com.example.vickey.databinding.FragmentProfileBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

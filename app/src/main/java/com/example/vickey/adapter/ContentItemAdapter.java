@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.vickey.R;
+import com.example.vickey.ShortsActivity;
 
 import java.util.List;
 

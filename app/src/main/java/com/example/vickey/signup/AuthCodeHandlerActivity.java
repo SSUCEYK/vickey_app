@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.signup;
 
 import android.content.ContentValues;
 import android.util.Log;

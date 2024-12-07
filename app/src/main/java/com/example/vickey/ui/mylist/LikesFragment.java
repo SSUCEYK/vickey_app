@@ -9,14 +9,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.vickey.LikesAdapter;
+import com.example.vickey.adapter.LikesAdapter;
 import com.example.vickey.R;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.models.Episode;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,39 +26,40 @@ public class LikesFragment extends Fragment {
     private RecyclerView recyclerView;
     private LikesAdapter adapter;
     private ApiService apiService;
-    private Map<Long, String> likedEpisodes;
+    private List<Episode> likedEpisodes;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_likes, container, false);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView_likes);
+        recyclerView = view.findViewById(R.id.recyclerView_likes);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        apiService = ApiClient.getClient(getContext()).create(ApiService.class);
-        loadLikedEpisodes();
+        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
+        
+
+        long userId = 1L; // 사용자 ID (임시)
+        loadLikedEpisodes(userId);
 
         return view;
     }
 
-    private void loadLikedEpisodes() {
-        long userId = 1L; // 사용자 ID (예시)
-        apiService.getLikedEpisodes(userId).enqueue(new Callback<Map<Long, String>>() {
+    private void loadLikedEpisodes(long userId) {
+        apiService.getLikedEpisodes(userId).enqueue(new Callback<List<Episode>>() {
             @Override
-            public void onResponse(Call<Map<Long, String>> call, Response<Map<Long, String>> response) {
+            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     likedEpisodes = response.body();
 
                     // 어댑터 설정
-                    List<String> episodeThumbnails = new ArrayList<>(likedEpisodes.values());
-                    adapter = new LikesAdapter(getContext(), episodeThumbnails);
+                    adapter = new LikesAdapter(getContext(), likedEpisodes);
                     recyclerView.setAdapter(adapter);
                 }
             }
 
             @Override
-            public void onFailure(Call<Map<Long, String>> call, Throwable t) {
+            public void onFailure(Call<List<Episode>> call, Throwable t) {
                 // 에러 처리
             }
         });

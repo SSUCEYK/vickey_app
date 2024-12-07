@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.signup;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vickey.MainActivity;
+import com.example.vickey.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginWithEmailActivity extends AppCompatActivity {

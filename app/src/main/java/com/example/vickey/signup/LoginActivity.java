@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.signup;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -17,6 +17,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vickey.MainActivity;
+import com.example.vickey.R;
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;

@@ -1,7 +1,7 @@
 package com.example.vickey.api.models;
 
 public class Episode {
-    private int episodeId;
+    private long episodeId;
     private String title;
     private String thumbnailUrl;
     private int episodeCount;
@@ -10,11 +10,11 @@ public class Episode {
     private String castList;
 
 
-    public int getEpisodeId() {
+    public long getEpisodeId() {
         return episodeId;
     }
 
-    public void setEpisodeId(int episodeId) {
+    public void setEpisodeId(long episodeId) {
         this.episodeId = episodeId;
     }
 

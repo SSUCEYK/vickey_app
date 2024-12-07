@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.ui.home;
 
 import com.example.vickey.api.models.Episode;
 

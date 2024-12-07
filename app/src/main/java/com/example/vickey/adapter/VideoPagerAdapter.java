@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.adapter;
 
 import android.content.Context;
 import android.net.Uri;
@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.example.vickey.R;
+import com.example.vickey.S3Helper;
 
 import java.io.File;
 import java.util.List;

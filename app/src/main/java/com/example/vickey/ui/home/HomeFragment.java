@@ -23,9 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.vickey.ContentItem;
-import com.example.vickey.ImageSliderAdapter;
-import com.example.vickey.ParentAdapter;
+import com.example.vickey.adapter.ImageSliderAdapter;
+import com.example.vickey.adapter.ParentAdapter;
 import com.example.vickey.R;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
@@ -70,7 +69,8 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // ApiClient를 통해 Retrofit 인스턴스 가져오기
-        apiService = ApiClient.getClient(requireActivity().getApplicationContext()).create(ApiService.class);
+        //apiService = ApiClient.getClient(requireActivity().getApplicationContext()).create(ApiService.class);
+        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
         // ViewModel에 ApiService 전달
         homeViewModel.setApiService(apiService);

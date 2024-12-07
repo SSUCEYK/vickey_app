@@ -1,4 +1,4 @@
-package com.example.vickey;
+package com.example.vickey.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -20,6 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.vickey.ContentDetailActivity;
+import com.example.vickey.R;
+import com.example.vickey.ShortsActivity;
 
 import java.util.List;
 
@@ -126,7 +129,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             Glide.with(context)
                     .load(imageUrl)
                     .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
                     .error(R.raw.thumbnail_goblin)
                     .into(imageView);
         }

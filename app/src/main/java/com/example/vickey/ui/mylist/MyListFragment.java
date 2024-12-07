@@ -1,6 +1,7 @@
 package com.example.vickey.ui.mylist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.vickey.MyListPagerAdapter;
+import com.example.vickey.adapter.MyListPagerAdapter;
 import com.example.vickey.R;
 import com.example.vickey.databinding.FragmentMylistBinding;
 import com.google.android.material.tabs.TabLayout;
@@ -19,12 +20,14 @@ public class MyListFragment extends Fragment {
 
     private FragmentMylistBinding binding;
 //    private MyListViewModel myListViewModel;
+    private final String TAG = "MyListFragment";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+        Log.e(TAG, "onCreateView: in");
+
         binding = FragmentMylistBinding.inflate(inflater, container, false);
-//        myListViewModel = new ViewModelProvider(this).get(MyListViewModel.class);
         View root = binding.getRoot();
 
         TabLayout tabLayout = root.findViewById(R.id.tabLayout);

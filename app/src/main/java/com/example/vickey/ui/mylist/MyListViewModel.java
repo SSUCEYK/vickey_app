@@ -13,6 +13,7 @@ import java.util.List;
 
 public class MyListViewModel extends ViewModel {
 
+    private final String TAG = "MyListFragment";
     private ApiService apiService;
     private MutableLiveData<List<Like>> likesLiveData = new MutableLiveData<>();
     private MutableLiveData<List<CheckWatched>> historyLiveData = new MutableLiveData<>();
