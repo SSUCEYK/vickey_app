@@ -409,7 +409,7 @@ public class HomeFragment extends Fragment {
         }
 
         // API 호출 및 결과 처리
-        ApiService apiService = ApiClient.getApiService(this);
+        ApiService apiService = ApiClient.getApiService(requireContext());
         apiService.searchEpisodes(query).enqueue(new Callback<List<Episode>>() {
             @Override
             public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
