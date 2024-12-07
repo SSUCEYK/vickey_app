@@ -9,7 +9,13 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vickey.APIService;
+import com.example.vickey.RetrofitClient;
+import com.example.vickey.User;
 import com.google.firebase.auth.FirebaseAuth;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class SignupWithEmailActivity extends AppCompatActivity {
 
@@ -44,6 +50,9 @@ public class SignupWithEmailActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // 가입 성공 후 처리
+                        String uid = auth.getCurrentUser().getUid();
+                        saveUserToServer(email, uid);
+
                         Toast.makeText(SignupWithEmailActivity.this, "가입 성공", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(this, LoginWithEmailActivity.class));
                         finish(); // Activity 종료
@@ -53,4 +62,26 @@ public class SignupWithEmailActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void saveUserToServer(String email, String uid) {
+        APIService apiService = RetrofitClient.getApiService();
+
+        User user = new User(uid, email); // User 객체 생성
+        apiService.registerUser(user).enqueue(new retrofit2.Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(SignupWithEmailActivity.this, "서버에 사용자 저장 완료", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(SignupWithEmailActivity.this, "서버 저장 실패: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(SignupWithEmailActivity.this, "네트워크 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

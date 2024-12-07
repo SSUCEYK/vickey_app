@@ -64,6 +64,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ShortsActivity"/>
+        <activity android:name=".Subscription"/>
+        <activity android:name=".WebViewActivity"/>
 
     </application>
 
