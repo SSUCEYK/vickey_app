@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -57,23 +58,30 @@ public class LoginWithEmailActivity extends AppCompatActivity {
         }
 
         auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // 로그인 성공 후 처리
-                        Toast.makeText(LoginWithEmailActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // 로그인 성공
+                    String uid = auth.getCurrentUser().getUid(); // Firebase UID 가져오기
+                    Toast.makeText(LoginWithEmailActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
 
-                        SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("login_method", "email");
-                        editor.apply();
+                    // 사용자 상태 저장
+                    SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("login_method", "email");
+                    editor.putString("uid", uid); // UID 저장
+                    editor.apply();
 
-                        startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
-                        finish(); // Activity 종료
-                    } else {
-                        // 로그인 실패 처리
-                        Toast.makeText(LoginWithEmailActivity.this, "로그인 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    Log.d("FirebaseUID", "User UID: " + uid);
+
+
+                    // 결제 상태 확인
+                    checkSubscriptionStatus(uid);
+
+                } else {
+                    // 로그인 실패
+                    Toast.makeText(LoginWithEmailActivity.this, "로그인 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 
 
@@ -92,7 +100,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                         finish();
                     } else {
                         // 결제 미완료 -> 구독 선택 화면으로 이동
-                        Intent intent = new Intent(LoginWithEmailActivity.this, Subscription.class);
+                        Intent intent = new Intent(LoginWithEmailActivity.this, SubscriptionActivity.class);
                         startActivity(intent);
                         finish();
                     }
