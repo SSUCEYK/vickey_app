@@ -5,11 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.GridLayout;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -51,7 +50,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         }
 
         EdgeToEdge.enable(this);
-        setContentView(R.layout.content_detail);
+        setContentView(R.layout.activity_content_detail);
 
         initializeViews();
         backButton.setOnClickListener(v -> {
