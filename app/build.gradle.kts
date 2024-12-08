@@ -77,7 +77,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation ("com.kakao.sdk:v2-user:2.12.1")
-    implementation("com.navercorp.nid:oauth:5.3.0")
+    implementation("com.navercorp.nid:oauth:5.10.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.legacy:legacy-support-core-utils:1.0.0")
@@ -114,6 +114,11 @@ dependencies {
 
 
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+
+    //exoplayer
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
 
 //    implementation ("androidx.credentials:credentials:1.0.0")
 //    implementation ("androidx.credentials:credentials-play-services:1.0.0")

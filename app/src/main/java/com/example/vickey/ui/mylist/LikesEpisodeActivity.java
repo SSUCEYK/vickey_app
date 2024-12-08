@@ -14,7 +14,7 @@ import com.example.vickey.R;
 import com.example.vickey.adapter.LikesEpisodeAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
-import com.example.vickey.api.responseDTO.LikedVideosResponse;
+import com.example.vickey.api.dto.LikedVideosResponse;
 
 import java.util.List;
 
@@ -46,12 +46,12 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         
         apiService = ApiClient.getClient(this).create(ApiService.class);
 
-        long userId = 1L; // 사용자 ID (예시)
+        String userId = "1"; // 사용자 ID (예시)
         loadLikedVideos(userId);
 
     }
 
-    private void loadLikedVideos(long userId) {
+    private void loadLikedVideos(String userId) {
         apiService.getLikedVideosByEpisode(userId, episodeId).enqueue(new Callback<List<LikedVideosResponse>>() {
             @Override
             public void onResponse(Call<List<LikedVideosResponse>> call, Response<List<LikedVideosResponse>> response) {

@@ -23,6 +23,7 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<List<Episode>> sliderEpisodes = new MutableLiveData<>();
     private final MutableLiveData<List<ContentItem>> contentItems = new MutableLiveData<>();
     private boolean dataLoaded = false; // 데이터 중복 로딩 방지 플래그
+    private final String TAG = "HomeViewModel";
 
     public LiveData<List<Episode>> getSliderEpisodes() {
         return sliderEpisodes;
@@ -42,6 +43,8 @@ public class HomeViewModel extends ViewModel {
 
     public void loadSliderEpisodes(int n) {
 
+        Log.d(TAG, "loadSliderEpisodes: loadSliderEpisodes in");
+
         if (sliderEpisodes.getValue() != null && !sliderEpisodes.getValue().isEmpty()) {
             return; // 데이터가 이미 로드되었다면 API 호출을 건너뜀
         }
@@ -51,12 +54,14 @@ public class HomeViewModel extends ViewModel {
             public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     sliderEpisodes.setValue(response.body());
+                    Log.d(TAG, "loadSliderEpisodes: loadSliderEpisodes success");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Episode>> call, Throwable t) {
                 sliderEpisodes.setValue(null);
+                Log.d(TAG, "loadSliderEpisodes: loadSliderEpisodes fail");
             }
         });
     }
@@ -70,14 +75,20 @@ public class HomeViewModel extends ViewModel {
         List<ContentItem> items = new ArrayList<>();
         String[] names = {"인기콘텐츠", "추천콘텐츠", "랜덤콘텐츠"};
 
+        Log.d(TAG, "loadContentItems: n=" + n);
+
         for (String name : names) {
             apiService.getRandomEpisodes(n).enqueue(new Callback<List<Episode>>() {
                 @Override
                 public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
                     if (response.isSuccessful() && response.body() != null) {
+
+                        Log.d(TAG, "API 호출 성공: " + response.body().size());
+
                         items.add(new ContentItem(name, response.body()));
                         contentItems.setValue(items);
                         dataLoaded = true; // 데이터 로드 완료 플래그 설정
+
                     }
                 }
 

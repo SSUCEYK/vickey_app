@@ -52,5 +52,6 @@ public class AuthCodeHandlerActivity extends AppCompatActivity {
 
     private void doSigninKakaoToken(String accessToken) {
         // 카카오 로그인 후 처리할 작업
+        Log.d("AuthCodeHandlerActivity", "doSigninKakaoToken: accessToken: " + accessToken);
     }
 }

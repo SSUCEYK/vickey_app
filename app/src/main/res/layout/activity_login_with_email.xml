@@ -11,9 +11,10 @@
         android:layout_height="200dp"
         android:src="@drawable/icon_cinema_white"
         android:layout_gravity="center"
-        android:layout_marginTop="120dp"/>
+        android:layout_marginTop="100dp"/>
 
     <ImageView
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:src="@drawable/vickey_logo"
@@ -29,39 +30,51 @@
         android:textStyle="italic"
         android:text="Vickey에 오신 것을 환영합니다!"/>
 
+
     <EditText
         android:id="@+id/email_edit_text"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:hint="이메일 입력"
         tools:ignore="MissingConstraints"
+        android:gravity="center"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
-        android:gravity="center"
         android:layout_marginHorizontal="40dp"
         android:textSize="17dp"/>
 
     <EditText
-        android:id="@+id/password_edit_text"
+        android:id="@+id/passwordEditText"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:hint="비밀번호 입력"
         android:inputType="textPassword"
         tools:ignore="MissingConstraints"
+        android:gravity="center"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
-        android:gravity="center"
         android:layout_marginHorizontal="40dp"
         android:textSize="17dp"/>
 
     <Button
-        android:id="@+id/signup_btn"
+        android:id="@+id/login_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="가입하기"
+        android:text="로그인"
         tools:ignore="MissingConstraints"
         android:layout_marginHorizontal="40dp"
         android:background="@drawable/radius8_pink"
         android:textSize="17dp"/>
+
+    <TextView
+        android:id="@+id/sign_up_text"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="가입하기"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:clickable="true"/>
 
 </LinearLayout>

@@ -14,7 +14,7 @@ import com.example.vickey.adapter.HistoryAdapter;
 import com.example.vickey.R;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
-import com.example.vickey.api.responseDTO.CheckWatchedResponse;
+import com.example.vickey.api.dto.CheckWatchedResponse;
 
 import java.util.List;
 
@@ -39,14 +39,14 @@ public class HistoryFragment extends Fragment {
 
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
-        long userId = 1L; // 사용자 ID (임시)
+        String userId = "1"; // 사용자 ID (임시)
         loadUserHistory(userId);
 
         return view;
     }
 
 
-    private void loadUserHistory(long userId) {
+    private void loadUserHistory(String userId) {
         apiService.getUserHistory(userId).enqueue(new Callback<List<CheckWatchedResponse>>() {
             @Override
             public void onResponse(Call<List<CheckWatchedResponse>> call, Response<List<CheckWatchedResponse>> response) {
