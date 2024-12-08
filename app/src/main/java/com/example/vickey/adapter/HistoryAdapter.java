@@ -19,7 +19,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.vickey.ContentDetailActivity;
 import com.example.vickey.R;
 import com.example.vickey.ShortsActivity;
-import com.example.vickey.api.responseDTO.CheckWatchedResponse;
+import com.example.vickey.api.dto.CheckWatchedResponse;
 
 import java.util.List;
 

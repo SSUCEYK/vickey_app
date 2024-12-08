@@ -1,4 +1,4 @@
-package com.example.vickey.api.responseDTO;
+package com.example.vickey.api.dto;
 
 public class LikedVideosResponse {
 

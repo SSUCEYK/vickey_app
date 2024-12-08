@@ -39,13 +39,13 @@ public class LikesFragment extends Fragment {
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
         
 
-        long userId = 1L; // 사용자 ID (임시)
+        String userId = "1"; // 사용자 ID (임시)
         loadLikedEpisodes(userId);
 
         return view;
     }
 
-    private void loadLikedEpisodes(long userId) {
+    private void loadLikedEpisodes(String userId) {
         apiService.getLikedEpisodes(userId).enqueue(new Callback<List<Episode>>() {
             @Override
             public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {

@@ -34,10 +34,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                              ViewGroup container, Bundle savedInstanceState) {
 
         Log.d(TAG, "onCreateView called");
-
-
-//        ProfileViewModel notificationsViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-//
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -45,10 +41,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         logout_btn = binding.logoutBtn;
         login_btn.setOnClickListener(this);
         logout_btn.setOnClickListener(this);
-//
-//        final TextView textView = binding.textProfile;
-//        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-//
+
         return root;
     }
 

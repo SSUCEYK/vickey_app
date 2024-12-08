@@ -8,6 +8,8 @@ public class UserStatus {
         return subscribed;
     }
 
+    public boolean getSubscribed() {return this.subscribed;}
+
     public void setSubscribed(boolean subscribed) {
         this.subscribed = subscribed;
     }

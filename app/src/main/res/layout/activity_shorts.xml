@@ -56,7 +56,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_more_vert"
+            android:src="@drawable/ic_more_vert_24_grey"
             android:padding="8dp"
             android:background="?attr/selectableItemBackground" />
 

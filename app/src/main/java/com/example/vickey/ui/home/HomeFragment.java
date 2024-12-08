@@ -26,22 +26,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.vickey.MainActivity;
+import com.example.vickey.R;
 import com.example.vickey.adapter.ImageSliderAdapter;
 import com.example.vickey.adapter.ParentAdapter;
-import com.example.vickey.R;
 import com.example.vickey.adapter.SearchAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.databinding.FragmentHomeBinding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -81,7 +80,6 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // ApiClient를 통해 Retrofit 인스턴스 가져오기
-        //apiService = ApiClient.getClient(requireActivity().getApplicationContext()).create(ApiService.class);
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
         // ViewModel에 ApiService 전달
@@ -91,12 +89,12 @@ public class HomeFragment extends Fragment {
         layoutIndicator = view.findViewById(R.id.layoutIndicators);
         mainRecyclerView = view.findViewById(R.id.mainRecyclerView);
         mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mainRecyclerView.setAdapter(new ParentAdapter(new ArrayList<>()));
 
         // ViewModel에 데이터를 로드하고 관찰
         observeViewModel(); // ViewModel 관찰
         loadDataOnce(); // 초기 데이터 로드 메서드
-        setupMenuProvider(view); // (검색 액션바) 메뉴 설정
-
+//        setupMenuProvider(view); // (검색 액션바) 메뉴 설정
 
         // 검색 결과를 위한 RecyclerView 설정
         searchRecyclerView = binding.searchResultRecyclerView;
@@ -178,12 +176,14 @@ public class HomeFragment extends Fragment {
     private void observeViewModel() {
         homeViewModel.getSliderEpisodes().observe(getViewLifecycleOwner(), episodes -> {
             if (episodes != null && !episodes.isEmpty()) {
+                Log.d(TAG, "Slider 에피소드 데이터 업데이트: " + episodes.size());
                 setupSliderFromEpisodes(episodes);
                 setupIndicators(sliderSize);
             }
         });
 
         homeViewModel.getContentItems().observe(getViewLifecycleOwner(), contentItems -> {
+            Log.d(TAG, "콘텐츠 데이터 업데이트: " + contentItems.size());
             if (contentItems != null && !contentItems.isEmpty()) {
                 setupRecyclerView(contentItems);
             }
@@ -201,40 +201,6 @@ public class HomeFragment extends Fragment {
         ParentAdapter mainAdapter = new ParentAdapter(contentItems);
         mainRecyclerView.setAdapter(mainAdapter);
     }
-
-//    private void fetchRandomEpisodes(int n, String name) {
-//        apiService.getRandomEpisodes(n).enqueue(new Callback<List<Episode>>() {
-//            @Override
-//            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    List<Episode> episodes = response.body();
-//                    Log.d("fetchRandomEpisodes", "Fetched Episodes: " + episodes);
-//
-//                    if (episodes == null || episodes.isEmpty()) {
-//                        Log.e("fetchEpisodesForHome", "No episodes received");
-//                        return;
-//                    }
-//                    else if (name.isEmpty()) {
-//                        // 슬라이더 설정
-//                        setupSliderFromEpisodes(episodes);
-//                        setupIndicators(n);
-//                    }
-//                    else {
-//                        // 콘텐츠 리스트 설정
-//                        setupContentsListFromEpisodes(episodes, name);
-//                    }
-//
-//                } else {
-//                    Log.e("fetchRandomEpisodes", "Response failed with code: " + response.code());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<Episode>> call, Throwable t) {
-//                Log.e("fetchRandomEpisodes", "API call failed", t);
-//            }
-//        });
-//    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void setupContentsListFromEpisodes(List<Episode> episodes, String name){

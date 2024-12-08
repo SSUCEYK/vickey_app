@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vickey.MainActivity;
 import com.example.vickey.R;
+import com.example.vickey.api.ApiClient;
+import com.example.vickey.api.ApiService;
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
@@ -39,23 +41,27 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button kakao_login_btn;
     private Button naver_login_btn;
-    private Button google_login_btn;
+//    private Button google_login_btn;
     private Button email_login_btn;
     private TextView sign_up_text;
 
     private SignInClient oneTapClient;
+    private ApiService apiService;
     private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
+        setContentView(R.layout.activity_login);
 
         kakao_login_btn = findViewById(R.id.kakao_login_btn);
         naver_login_btn = findViewById(R.id.naver_login_btn);
-        google_login_btn = findViewById(R.id.google_login_btn);
+//        google_login_btn = findViewById(R.id.google_login_btn);
         email_login_btn = findViewById(R.id.email_login_btn);
         sign_up_text = findViewById(R.id.sign_up_text);
+
+        apiService = ApiClient.getApiService(getApplicationContext());
+
 
         kakao_login_btn.setOnClickListener(v -> {
             doKakaoLogin();
@@ -63,9 +69,9 @@ public class LoginActivity extends AppCompatActivity {
         naver_login_btn.setOnClickListener(v -> {
             doNaverLogin();
         });
-        google_login_btn.setOnClickListener(v -> {
-            doGoogleLogin();
-        });
+//        google_login_btn.setOnClickListener(v -> {
+//            doGoogleLogin();
+//        });
         email_login_btn.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, LoginWithEmailActivity.class));
         });
@@ -115,14 +121,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private void doSigninKakaoToken(String accessToken) {
         // 카카오 로그인 후 처리할 작업
-        // 서버로 카카오 토큰 전송하여 사용자 인증 처리
         Log.d(TAG, "카카오 로그인 토큰 처리: " + accessToken);
 
+        // 서버로 카카오 토큰 전송하여 사용자 인증 처리 TODO
+
+        // 로그인 방법 저장 후 홈 화면 복귀
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("login_method", "kakao");
+        editor.putString("login_method", "google");
         editor.apply();
-
         startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
     }
 
@@ -135,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
                         String token = NaverIdLoginSDK.INSTANCE.getAccessToken();
-                        Log.e("", "accessToken=" + token);
+                        Log.e(TAG, "accessToken=" + token);
                         doSigninNaverToken(token);
                         break;
                     case Activity.RESULT_CANCELED:
@@ -162,13 +169,16 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "TokenType : " + NaverIdLoginSDK.INSTANCE.getTokenType());
         Log.d(TAG, "State : " + String.valueOf(NaverIdLoginSDK.INSTANCE.getState()));
 
+        // 서버로 네이버 토큰 전송하여 사용자 인증 처리 TODO
+
+        // 로그인 방법 저장 후 홈 화면 복귀
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("login_method", "naver");
         editor.apply();
-
         startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
     }
+
 
     private void doToastMakeAppend(int titleResourceId, String message) {
         // 토스트 메시지 구현
