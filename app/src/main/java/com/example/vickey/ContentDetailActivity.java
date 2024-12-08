@@ -58,8 +58,8 @@ public class ContentDetailActivity extends AppCompatActivity {
         });
         apiService = ApiClient.getApiService(this);
 
-        int episodeId = getIntent().getIntExtra("episodeId", -1);
-        if (episodeId == -1) { // episodeId 값 에러
+        long episodeId = getIntent().getLongExtra("episodeId", -1L);
+        if (episodeId == -1L) { // episodeId 값 에러
             Toast.makeText(this, "콘텐츠 정보 불러올 수 없습니다", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -85,7 +85,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    private void loadEpisodeData(int episodeId){
+    private void loadEpisodeData(long episodeId){
         apiService.contentInfoEpisodes(episodeId).enqueue(new Callback<Episode>() {
             @Override
             public void onResponse(Call<Episode> call, Response<Episode> response) {

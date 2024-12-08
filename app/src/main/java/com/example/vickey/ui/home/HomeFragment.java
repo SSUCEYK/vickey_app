@@ -389,8 +389,9 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Episode>> call, Throwable t) {
                 if (isAdded()) {
-                    Toast.makeText(requireContext(),
-                            "검색 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "API 호출 실패", t);  // 구체적인 에러 로깅
+                    String errorMessage = "검색 중 오류가 발생했습니다: " + t.getMessage();
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });

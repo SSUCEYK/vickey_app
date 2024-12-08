@@ -51,7 +51,7 @@ public interface ApiService {
 
     // 에피소드 상세 정보
     @GET("api/episodes/contentInfo")
-    Call<Episode> contentInfoEpisodes(@Query("contentInfoQuery") Integer contentInfoQuery);
+    Call<Episode> contentInfoEpisodes(@Query("contentInfoQuery") Long contentInfoQuery);
 
     // ID 리스트로 title 리스트 가져오기
     @POST("api/getEpisodeTitles")

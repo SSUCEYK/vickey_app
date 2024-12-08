@@ -3,6 +3,7 @@ package com.example.vickey.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.EpisodeVie
                 .load(episode.getThumbnailUrl())
                 .into(holder.thumbnailImageView);
 
-        holder.itemView.setOnClickListener(v -> { // 클릭 시 상세 정보 액티비티(ContentInfo.java)로 이동
+        holder.itemView.setOnClickListener(v -> { // 클릭 시 상세 정보 액티비티(ContentDetailActivity.java)로 이동
+            Log.d("EpisodeAdapter", "Episode ID: " + episode.getEpisodeId()); // 전달 전 값 확인
             Intent intent = new Intent(context, ContentDetailActivity.class);
             intent.putExtra("episodeId", episode.getEpisodeId());
             context.startActivity(intent);
