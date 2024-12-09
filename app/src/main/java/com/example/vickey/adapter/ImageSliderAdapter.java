@@ -23,19 +23,18 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.vickey.ContentDetailActivity;
 import com.example.vickey.R;
 import com.example.vickey.ShortsActivity;
+import com.example.vickey.api.models.Episode;
 
 import java.util.List;
 
 public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.MyViewHolder> {
     private Context context;
-    private List<String> sliderImage;
+    private List<Episode> episodes;
     private final String TAG = "ImageSliderAdapter";
 
-    public ImageSliderAdapter(Context context, List<String> sliderImage) {
+    public ImageSliderAdapter(Context context, List<Episode> episodes) {
         this.context = context;
-        this.sliderImage = sliderImage;
-
-        Log.d(TAG, "sliderImage urls: " + sliderImage);
+        this.episodes = episodes;
     }
 
     @NonNull
@@ -48,20 +47,23 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        Log.d(TAG, "Position: " + position + ", Total Items: " + sliderImage.size());
 
-        String url = sliderImage.get(position);
+        Episode episode = episodes.get(position);
+        String url = episode.getThumbnailUrl();
+
+        Log.d(TAG, "onBindViewHolder: position = " +position);
+        Log.d(TAG, "onBindViewHolder: episode.getThumbnailUrl() = " + url);
 
         Glide.with(context).clear(holder.imageView); // Glide 이미지 로딩 전에 이전 이미지 초기화
         holder.bindImage(url);
-
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Intent를 통해 새로운 액티비티 실행
                 Intent intent = new Intent(context, ShortsActivity.class);
-                intent.putExtra("imageUrl", url);
+                intent.putExtra("episodeId", episode.getEpisodeId());
+                intent.putExtra("videoNum", 1);
                 context.startActivity(intent);
             }
         });
@@ -84,7 +86,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             // 딜레이 후 액티비티 이동
             v.postDelayed(() -> {
                 Intent intent = new Intent(context, ContentDetailActivity.class);
-                intent.putExtra("imageUrl", url);
+                intent.putExtra("episodeId", episode.getEpisodeId());
                 context.startActivity(intent);
             }, 50); // 후에 실행
         });
@@ -109,7 +111,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     @Override
     public int getItemCount() {
-        return sliderImage.size();
+        return episodes.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -137,8 +139,8 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     // 데이터 갱신 메서드 추가
     @SuppressLint("NotifyDataSetChanged")
-    public void updateData(List<String> newImages) {
-        this.sliderImage = newImages;
+    public void updateData(List<Episode> episodes) {
+        this.episodes = episodes;
         notifyDataSetChanged(); // 어댑터에 변경 알림
     }
 

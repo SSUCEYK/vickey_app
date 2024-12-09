@@ -49,7 +49,7 @@ public class ShortsActivity extends AppCompatActivity {
         viewPager2 = findViewById(R.id.viewPager2);
 
         // Intent에서 데이터 받기
-        int episodeId = getIntent().getIntExtra("episodeId", -1);
+        long episodeId = getIntent().getLongExtra("episodeId", -1L);
         int videoNum = getIntent().getIntExtra("videoNum", -1); // 특정 회차가 지정되지 않으면 -1
 
         if (episodeId == -1) {

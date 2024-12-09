@@ -10,7 +10,6 @@ public class Episode {
     private String castList; // 연출
     private String videoURLs; // 비디오 url 목록 (재생을 위해 필요, 추가하였음)
 
-
     public long getEpisodeId() {
         return episodeId;
     }

@@ -3,25 +3,22 @@ package com.example.vickey;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.GridLayout;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 
 import com.bumptech.glide.Glide;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import androidx.core.widget.NestedScrollView;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,7 +56,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         });
         apiService = ApiClient.getApiService(this);
 
-        int episodeId = getIntent().getIntExtra("episodeId", -1);
+        long episodeId = getIntent().getLongExtra("episodeId", -1L);
         if (episodeId == -1) { // episodeId 값 에러
             Toast.makeText(this, "콘텐츠 정보 불러올 수 없습니다", Toast.LENGTH_SHORT).show();
             finish();
@@ -86,7 +83,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    private void loadEpisodeData(int episodeId){
+    private void loadEpisodeData(long episodeId){
         apiService.contentInfoEpisodes(episodeId).enqueue(new Callback<Episode>() {
             @Override
             public void onResponse(Call<Episode> call, Response<Episode> response) {

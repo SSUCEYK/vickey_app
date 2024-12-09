@@ -43,14 +43,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/black"
+        android:layout_marginBottom="30dp"
         app:behavior_hideable="false"
         app:behavior_peekHeight="280dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
+            android:layout_marginBottom="50dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <!-- 상세 설명 부분 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/description"
@@ -66,6 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="30dp"
                     android:textSize="30sp"
+                    android:textColor="@color/white"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,6 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:textSize="15sp"
+                    android:textColor="@color/white"
                     app:layout_constraintTop_toBottomOf="@id/descriptionTitle"
                     app:layout_constraintStart_toStartOf="parent" />
 
@@ -86,6 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:textSize="15sp"
+                    android:textColor="@color/white"
                     app:layout_constraintTop_toTopOf="@id/descriptionEpisodeCount"
                     app:layout_constraintStart_toEndOf="@id/descriptionEpisodeCount" />
 
@@ -95,6 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
+                    android:textColor="@color/white"
                     app:layout_constraintTop_toBottomOf="@id/descriptionEpisodeCount"
                     app:layout_constraintStart_toStartOf="parent" />
 
@@ -105,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:layout_marginEnd="30dp"
+                    android:textColor="@color/white"
                     app:layout_constraintTop_toBottomOf="@id/castTextView"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
@@ -121,6 +129,7 @@
                     android:id="@+id/episodeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="100dp"
                     android:text="회차"
                     android:textColor="@android:color/white"
                     android:layout_margin="10dp"
@@ -139,7 +148,10 @@
                     app:layout_constraintTop_toBottomOf="@id/episodeText"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

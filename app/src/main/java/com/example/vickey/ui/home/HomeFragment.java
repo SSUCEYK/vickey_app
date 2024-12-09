@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -106,14 +107,33 @@ public class HomeFragment extends Fragment {
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+
                 menuInflater.inflate(R.menu.actionbar_menu, menu);
                 Log.d(TAG, "Menu created: " + menu.size()); // 메뉴 아이템 수 출력
+
                 MenuItem menuItem = menu.findItem(R.id.search);
                 SearchView searchView = (SearchView) menuItem.getActionView();
                 searchView.setQueryHint(getString(R.string.search_query_hint));
 
                 // SearchView 스타일 설정
-                searchView.setBackgroundResource(android.R.color.transparent);
+                // 배경
+                //searchView.setBackgroundResource(android.R.color.transparent);
+                searchView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black));
+
+                // SearchView 내부의 (기본) EditText 요소에 접근
+                int searchTextId = searchView.getContext().getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                EditText searchEditText = searchView.findViewById(searchTextId);
+                if (searchEditText != null) {
+                    // 텍스트 색상 설정
+                    searchEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    // 힌트 텍스트 색상 설정
+                    searchEditText.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.grey_1));
+                }
+
+                // 힌트 텍스트 설정
+                searchView.setQueryHint(getString(R.string.search_query_hint));
+
 
                 // SearchView 리스너 설정
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -177,7 +197,8 @@ public class HomeFragment extends Fragment {
         homeViewModel.getSliderEpisodes().observe(getViewLifecycleOwner(), episodes -> {
             if (episodes != null && !episodes.isEmpty()) {
                 Log.d(TAG, "Slider 에피소드 데이터 업데이트: " + episodes.size());
-                setupSliderFromEpisodes(episodes);
+
+                setupSlider(episodes);
                 setupIndicators(sliderSize);
             }
         });
@@ -217,32 +238,20 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void setupSliderFromEpisodes(List<Episode> episodes) {
-        List<String> thumbnails = new ArrayList<>();
-        for (Episode episode : episodes) {
-            thumbnails.add(episode.getThumbnailUrl());
-        }
-        setupSlider(thumbnails);
-    }
+    private void setupSlider(List<Episode> episodes) {
 
-    private void setupSlider(List<String> imageUrls) {
-
-        if (imageUrls == null || imageUrls.isEmpty()) {
-            Log.e(TAG, "No image URLs to set up slider.");
+        if (episodes == null || episodes.isEmpty()){
+            Log.e(TAG, "setupSlider: No episodes to set slider up");
             return;
         }
 
-        int imageUrlsSize = imageUrls.size();
-        List<String> modifiedImageUrls = new ArrayList<>(imageUrls); // 가짜 페이지를 추가하기 위해 ImageUrls 수정
-
-        modifiedImageUrls.add(0, imageUrls.get(imageUrlsSize - 1)); // 마지막 이미지를 첫 번째로 복사
-        modifiedImageUrls.add(imageUrls.get(0)); // 첫 번째 이미지를 마지막으로 복사
-
-        Log.d(TAG, "imageUrls: " + imageUrls);
-        Log.d(TAG, "modifiedImageUrls: " + modifiedImageUrls);
+        int episodesSize = episodes.size();
+        List<Episode> modifiedEpisodes = new ArrayList<>(episodes); // 가짜 페이지를 추가하기 위해
+        modifiedEpisodes.add(0, episodes.get(episodesSize - 1)); // 마지막 이미지를 첫 번째로 복사
+        modifiedEpisodes.add(episodes.get(0)); // 첫 번째 이미지를 마지막으로 복사
 
         // Image Adapter 설정
-        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), modifiedImageUrls));
+        sliderViewPager.setAdapter(new ImageSliderAdapter(requireContext(), modifiedEpisodes));
         sliderViewPager.setOffscreenPageLimit(3); // 좌, 우까지
         sliderViewPager.post(() -> sliderViewPager.setCurrentItem(1, false)); // 초기 페이지를 실제 첫 번째 콘텐츠로 설정
 
@@ -266,7 +275,7 @@ public class HomeFragment extends Fragment {
         });
 
         sliderViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            private int itemCount = modifiedImageUrls.size();
+            private int itemCount = modifiedEpisodes.size();
 
             @Override
             public void onPageScrollStateChanged(int state) {
@@ -274,13 +283,16 @@ public class HomeFragment extends Fragment {
 
                 if (state == ViewPager2.SCROLL_STATE_IDLE) {
                     int currentItem = sliderViewPager.getCurrentItem();
+                    Log.d(TAG, "onPageScrollStateChanged: currentItem=" + currentItem);
 
                     if (currentItem == 0) {
                         // 첫 번째 가짜 페이지에 도달한 경우
+                        Log.d(TAG, "onPageScrollStateChanged: currentItem=" + currentItem + ", set="+(itemCount-2));
                         sliderViewPager.setCurrentItem(itemCount - 2, false); // 마지막 실제 페이지로 이동
                     }
                     else if (currentItem == itemCount - 1) {
                         // 마지막 가짜 페이지에 도달한 경우
+                        Log.d(TAG, "onPageScrollStateChanged: currentItem=" + currentItem + ", set=1");
                         sliderViewPager.setCurrentItem(1, false); // 첫 번째 실제 페이지로 이동
                     }
                 }
@@ -290,8 +302,8 @@ public class HomeFragment extends Fragment {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
 
-                int actualPosition = (position == 0) ? imageUrls.size() - 1 :
-                        (position == modifiedImageUrls.size() - 1) ? 0 : position - 1;
+                int actualPosition = (position == 0) ? episodes.size() - 1 :
+                        (position == modifiedEpisodes.size() - 1) ? 0 : position - 1;
 
                 setCurrentIndicator(actualPosition);
             }
