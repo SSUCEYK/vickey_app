@@ -16,7 +16,7 @@ fun getApiKey(propertyKey: String): String {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("C:\\Users\\jweun\\vickey.jks")
+            storeFile = file("../vickey.jks")
             storePassword = "qlalfqjsgh"
             keyAlias = "key0"
             keyPassword = "qlalfqjsgh"
@@ -112,6 +112,11 @@ dependencies {
     testImplementation ("com.squareup.okhttp3:mockwebserver:4.9.3")
     implementation ("com.h2database:h2:2.1.214")
 
+
+    //exoplayer
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
 
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
