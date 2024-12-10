@@ -57,13 +57,14 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         Glide.with(context).clear(holder.imageView); // Glide 이미지 로딩 전에 이전 이미지 초기화
         holder.bindImage(url);
 
+        // 썸네일 클릭 이벤트
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Intent를 통해 새로운 액티비티 실행
                 Intent intent = new Intent(context, ShortsActivity.class);
                 intent.putExtra("episodeId", episode.getEpisodeId());
-                intent.putExtra("videoNum", 1);
+                intent.putExtra("videoNum", 1); // 홈화면에서 썸네일 클릭 시 첫 비디오부터 재생 (체크 후 수정: 시청 기록 있으면 시청하던 videoNum부터?)
                 context.startActivity(intent);
             }
         });

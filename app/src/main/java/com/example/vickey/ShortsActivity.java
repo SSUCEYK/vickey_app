@@ -60,11 +60,18 @@ public class ShortsActivity extends AppCompatActivity {
 
         // API 호출하여 데이터 가져오기
         ApiService apiService = ApiClient.getApiService(this);
+        Log.d(TAG, "onCreate: episodeId=" + episodeId);
+
         apiService.contentInfoEpisodes(episodeId).enqueue(new Callback<Episode>() {
             @Override
             public void onResponse(Call<Episode> call, Response<Episode> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Episode episode = response.body();
+
+                    Log.d(TAG, "onResponse: episode.getEpisodeId()=" + episode.getEpisodeId());
+                    Log.d(TAG, "onResponse: episode.getTitle()=" + episode.getTitle());
+                    Log.d(TAG, "onResponse: episode.getThumbnailUrl()=" +episode.getThumbnailUrl());
+
                     setupVideoPlayer(episode, videoNum);
                 } else {
                     Toast.makeText(ShortsActivity.this,
@@ -156,14 +163,17 @@ public class ShortsActivity extends AppCompatActivity {
 
     private void setupVideoPlayer(Episode episode, int targetVideoNum) {
         this.currentEpisode = episode;
+        Log.d(TAG, "setupVideoPlayer: episode.getVideoURLs()=" + episode.getVideoUrls());
         try {
-            // JSON 파싱
-            List<String> videoUrls = parseVideoUrls(episode.getVideoURLs());
-            if (videoUrls.isEmpty()) {
-                Toast.makeText(this, "재생할 수 있는 영상이 없습니다.", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
+//            // JSON 파싱
+//            List<String> videoUrls = parseVideoUrls(episode.getVideoURLs());
+//            if (videoUrls.isEmpty()) {
+//                Toast.makeText(this, "재생할 수 있는 영상이 없습니다.", Toast.LENGTH_SHORT).show();
+//                finish();
+//                return;
+//            }
+
+            List<String> videoUrls = episode.getVideoUrls();
 
             // 어댑터 설정
             adapter = new VideoPagerAdapter(this, videoUrls);
@@ -263,6 +273,11 @@ public class ShortsActivity extends AppCompatActivity {
         }
     }
     private List<String> parseVideoUrls(String json) {
+        if (json == null) {
+            Log.d(TAG, "parseVideoUrls: json==null");
+            return null;
+        }
+        
         List<String> urls = new ArrayList<>();
         try {
             // 맨 앞뒤 따옴표 제거

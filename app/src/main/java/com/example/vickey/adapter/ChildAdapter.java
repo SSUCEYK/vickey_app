@@ -1,6 +1,7 @@
 package com.example.vickey.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.vickey.ContentDetailActivity;
 import com.example.vickey.R;
+import com.example.vickey.ShortsActivity;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -21,6 +23,7 @@ import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHolder> {
 
+    private Context context;
     private final List<Episode> episodes;
 
     public ChildAdapter(List<Episode> episodes) {
@@ -55,17 +58,31 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
         String imageUrl = episode.getThumbnailUrl();
         String title = episode.getTitle();
 
-        Glide.with(holder.itemView.getContext())
+        context = holder.itemView.getContext();
+
+        // 이미지 바인딩
+        Glide.with(context).clear(holder.imageView); // Glide 이미지 로딩 전에 이전 이미지 초기화
+        Glide.with(context)
                 .load(imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
                 .skipMemoryCache(true)
                 .error(R.raw.thumbnail_goblin)
                 .into(holder.imageView);
 
-//              .diskCacheStrategy(DiskCacheStrategy.NONE)
-
         // 텍스트 설정
         holder.textView.setText(title);
+
+        // 썸네일 클릭 이벤트
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent를 통해 새로운 액티비티 실행
+                Intent intent = new Intent(context, ShortsActivity.class);
+                intent.putExtra("episodeId", episode.getEpisodeId());
+                intent.putExtra("videoNum", 1); // 홈화면에서 썸네일 클릭 시 첫 비디오부터 재생 (체크 후 수정: 시청 기록 있으면 시청하던 videoNum부터?)
+                context.startActivity(intent);
+            }
+        });
 
         // 점 세 개 버튼 클릭 이벤트
         holder.menuButton.setOnClickListener(v -> {
@@ -78,14 +95,16 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
                         holder.menuButton.animate()
                                 .scaleX(1.0f) // 원래 크기로 복귀
                                 .scaleY(1.0f)
-                                .setDuration(150)
+                                .setDuration(50)
                                 .start();
                     }).start();
 
-            // 클릭 후 상세 페이지로 이동
-            Intent intent = new Intent(holder.itemView.getContext(), ContentDetailActivity.class);
-            intent.putExtra("imageUrl", imageUrl); // 이미지 URL 전달
-            holder.itemView.getContext().startActivity(intent);
+            // 클릭 시 딜레이 후 상세 페이지로 이동
+            v.postDelayed(() -> {
+                Intent intent = new Intent(holder.itemView.getContext(), ContentDetailActivity.class);
+                intent.putExtra("episodeId", episode.getEpisodeId());
+                holder.itemView.getContext().startActivity(intent);
+            }, 50); // 후에 실행
         });
 
     }

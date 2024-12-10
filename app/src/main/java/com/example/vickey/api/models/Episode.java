@@ -1,15 +1,18 @@
 package com.example.vickey.api.models;
 
-public class Episode {
-    private long episodeId;
-    private String title;
-    private String thumbnailUrl;
-    private int episodeCount; // !episode 총 회차 갯수?
-    private String description;
-    private String releasedDate;
-    private String castList; // 연출
-    private String videoURLs; // 비디오 url 목록 (재생을 위해 필요, 추가하였음)
+import java.util.List;
 
+public class Episode {
+    private long episodeId;          // Episode ID
+    private String title;            // Episode 제목
+    private String thumbnailUrl;     // 썸네일 URL
+    private int episodeCount;        // Episode 총 회차 수
+    private String description;      // 설명
+    private String releasedDate;     // 출시 날짜
+    private String castList;         // 출연진/연출
+    private List<String> videoUrls;  // Video URL 리스트 (변경)
+
+    // Getters and Setters
     public long getEpisodeId() {
         return episodeId;
     }
@@ -66,11 +69,25 @@ public class Episode {
         this.castList = castList;
     }
 
-    public String getVideoURLs() {
-        return videoURLs;
+    public List<String> getVideoUrls() {
+        return videoUrls;
     }
 
-    public void setVideoURLs(String videoURLs) {
-        this.videoURLs = videoURLs;
+    public void setVideoUrls(List<String> videoUrls) {
+        this.videoUrls = videoUrls;
+    }
+
+    @Override
+    public String toString() {
+        return "Episode{" +
+                "episodeId=" + episodeId +
+                ", title='" + title + '\'' +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
+                ", episodeCount=" + episodeCount +
+                ", description='" + description + '\'' +
+                ", releasedDate='" + releasedDate + '\'' +
+                ", castList='" + castList + '\'' +
+                ", videoUrls=" + videoUrls +
+                '}';
     }
 }
