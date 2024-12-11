@@ -53,7 +53,10 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
 
         // 텍스트 설정
         int videoNum = likedVideosResponse.getVideoNum();
-        holder.textView.setText(videoNum + R.string.round);
+        String t = context.getString(R.string.round_fr)
+                + videoNum
+                + context.getString(R.string.round_rr);
+        holder.textView.setText(t);
 
         // 이미지 뷰 클릭 이벤트 : 클릭 시 영상 재생 액티비티
         holder.contentImage.setOnClickListener(v-> {

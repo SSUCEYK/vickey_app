@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="grey_0">#ced4da</color>
     <color name="grey_1">#BDBDBD</color>
     <color name="grey_4">#6b6b6b</color>
     <color name="grey_7">#495057</color>
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+
+    <color name="black_1">#020715</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
     <color name="yellow_kakao">#FEE500</color>
     <color name="school_bus_yello">#e8a317</color>
     <color name="green_naver">#03c75a</color>
     <color name="sap_green">#236533</color>
     <color name="blue_google">#4285F4</color>
     <color name="dark_navy_blue">#03254c</color>
+
     <color name="bright_pink">#FF007F</color>
     <color name="hot_pink">#DB0075</color>
     <color name="pay_btn">#FF4E88</color>

@@ -1,8 +1,11 @@
 package com.example.vickey;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -18,6 +21,7 @@ import com.example.vickey.signup.SubscriptionType;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,12 +42,26 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-//        testKNetwork();
 //        getHashKey();
 
         // SubscriptionType 초기화
         initializeSubscriptionTypes();
 
+        // 언어 초기화
+        setAppLocale();
+    }
+
+    // 언어 초기화
+    private void setAppLocale() {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String langCode = prefs.getString("language", "ko"); // 기본 언어: 한국어
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
     // SubscriptionType 초기화

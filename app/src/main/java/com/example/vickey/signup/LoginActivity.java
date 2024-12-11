@@ -129,8 +129,9 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("login_method", "google");
+        editor.putBoolean("isLoginned", true); // 로그인 상태 저장
         editor.apply();
-        startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
+        startActivity(new Intent(this, MainActivity.class));
     }
 
 
@@ -175,8 +176,9 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("login_method", "naver");
+        editor.putBoolean("isLoginned", true); // 로그인 상태 저장
         editor.apply();
-        startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
+        startActivity(new Intent(this, MainActivity.class));
     }
 
 
@@ -246,9 +248,10 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("login_method", "google");
+        editor.putBoolean("isLoginned", true); // 로그인 상태 저장
         editor.apply();
 
-        startActivity((new Intent(this, MainActivity.class)).putExtra("isLoginned", true));
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     // API 예외 처리

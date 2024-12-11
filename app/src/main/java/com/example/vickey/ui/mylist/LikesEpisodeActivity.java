@@ -36,8 +36,6 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_likes_episode);
 
-        Log.d(TAG, "onCreate: in");
-
         // Intent에서 전달된 이미지 리소스 ID 받기
         Intent intent = getIntent();
         episodeId = intent.getLongExtra("episodeId", -1L); // (-1: 존재하지 않는 ID)
@@ -53,7 +51,6 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         // 리사이클러뷰 설정
         recyclerView = findViewById(R.id.recyclerView_likes_episode);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        
         apiService = ApiClient.getClient(this).create(ApiService.class);
 
         // SharedPreferences에서 userId 가져오기
@@ -63,7 +60,6 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         userId = "1"; //테스트용
 
         loadLikedVideos(userId);
-
     }
 
     private void loadLikedVideos(String userId) {
@@ -82,6 +78,7 @@ public class LikesEpisodeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<LikedVideosResponse>> call, Throwable t) {
                 // 에러 처리
+                Log.d(TAG, "onFailure: getLikedVideosByEpisode() failed: " + t);
             }
         });
     }

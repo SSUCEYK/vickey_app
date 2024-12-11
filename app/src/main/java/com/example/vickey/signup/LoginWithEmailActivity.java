@@ -105,6 +105,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("login_method", "email");
+                    editor.putBoolean("isLoginned", true);
                     //테스트용
                     editor.putString("userId", uid); // UID 저장
                     editor.apply();

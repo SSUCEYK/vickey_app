@@ -6,11 +6,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,11 +41,13 @@ import com.example.vickey.signup.LoginActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kakao.sdk.user.UserApiClient;
 import com.navercorp.nid.NaverIdLoginSDK;
 
 import java.io.File;
+import java.util.Locale;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -62,6 +68,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     private User user = new User();
     private String userId;
     private ApiService apiService;
+    private LinearLayout languageSetting;
+
+    private SharedPreferences prefs;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -74,18 +83,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         logout_btn = binding.logoutBtn;
         login_btn.setOnClickListener(this);
         logout_btn.setOnClickListener(this);
-
         profile_uid = binding.profileUid;
         profile_image = binding.profileImage;
         profile_username = binding.profileUsername;
         profile_image.setOnClickListener(this);
         profile_username.setOnClickListener(this);
-
+        languageSetting = binding.languageSetting;
+        languageSetting.setOnClickListener(this);
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
         // SharedPreferences에서 userId 가져오기
-        userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
-                .getString("userId", null);
+        prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        userId = prefs.getString("userId", null);
         Log.d(TAG, "onCreateView: userId=" + userId);
         userId = "1"; //테스트용
         profile_uid.setText("UID: " + userId);
@@ -93,6 +102,81 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         setUserProfile();
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // 로그인 정보
+        boolean isLoginned = prefs.getBoolean("isLoginned", false);
+        Log.d(TAG, "isLoginned: " + isLoginned);
+
+        // 로그인 상태에 따른 버튼의 visibility 설정
+        if (isLoginned) {
+            login_btn.setVisibility(View.GONE);
+            logout_btn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    private void showLanguageDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_language_selection, null);
+
+        view.findViewById(R.id.language_korean).setOnClickListener(v -> {
+            setLocale("ko");
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.language_english).setOnClickListener(v -> {
+            setLocale("en");
+            dialog.dismiss();
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+
+    private void setLocale(String langCode) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("language", langCode);
+        editor.apply();
+
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        DisplayMetrics displayMetrics = resources.getDisplayMetrics();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, displayMetrics);
+
+        Intent intent = new Intent(getContext(), getActivity().getClass());
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.login_btn) {
+            startActivity(new Intent(requireActivity(), LoginActivity.class));
+        } else if (id == R.id.logout_btn) {
+            logout();
+        } else if (id == R.id.profile_image) {
+            pickProfileImage();
+        } else if (id == R.id.profile_username) {
+            changeUsername();
+        } else if (id == R.id.language_setting){
+            showLanguageDialog();
+        }
     }
 
     public void setUserProfile(){
@@ -146,45 +230,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                 .into(profile_image);
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Intent로부터 로그인 여부 받기 (필요에 따라 Activity에서 전달)
-        boolean isLoginned = getActivity().getIntent().getBooleanExtra("isLoginned", false);
-        Log.d(TAG, "isLoginned: " + isLoginned); // 로그 추가
-
-        // 로그인 상태에 따른 버튼의 visibility 설정
-        if (isLoginned) {
-            login_btn.setVisibility(View.GONE);
-            logout_btn.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.login_btn) {
-            startActivity(new Intent(requireActivity(), LoginActivity.class));
-        } else if (id == R.id.logout_btn) {
-            logout();
-        } else if (id == R.id.profile_image) {
-            pickProfileImage();
-        } else if (id == R.id.profile_username) {
-            changeUsername();
-        }
-
-    }
-
     private void logout(){
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        String loginMethod = sharedPreferences.getString("login_method", "");
+        prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String loginMethod = prefs.getString("login_method", "");
 
         if (loginMethod.equals("kakao")){
             UserApiClient.getInstance().logout(error -> {
@@ -221,9 +269,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                 Log.e("Logout", getString(R.string.logout_fail), e);
             }
         }
+        else{
+            makeLogoutToastMsg(false);
+            Log.e("Logout", "로그아웃 실패");
+            return;
+        }
 
         login_btn.setVisibility(View.VISIBLE);
         logout_btn.setVisibility(View.GONE);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("login_method", "");
+        editor.apply();
     }
 
     private void makeLogoutToastMsg(boolean success){

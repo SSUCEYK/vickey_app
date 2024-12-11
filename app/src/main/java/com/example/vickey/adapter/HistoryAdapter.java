@@ -52,7 +52,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         String url = cw.getThumbnailUrl();
         holder.bindImage(url);
 
-        String t = episode.getTitle() + " (" + cw.getVideoNum() + "회)";
+        String t = episode.getTitle()
+                + " ("
+                + context.getString(R.string.round_fr)
+                + cw.getVideoNum()
+                + context.getString(R.string.round_rr) + ")";
         holder.textView.setText(t);
 
         holder.imageView.setOnClickListener(v -> {

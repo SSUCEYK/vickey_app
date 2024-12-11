@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:text="에피소드 제목/회차"
         android:textColor="@color/white"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/history_image"
         app:layout_constraintLeft_toLeftOf="@id/history_image"
         app:layout_constraintRight_toRightOf="@id/history_image" />
