@@ -68,7 +68,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     private User user = new User();
     private String userId;
     private ApiService apiService;
-    private LinearLayout languageSetting;
+    private LinearLayout language_setting;
+    private LinearLayout inquiry_request;
 
     private SharedPreferences prefs;
 
@@ -77,19 +78,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
 
         Log.d(TAG, "onCreateView called");
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-        login_btn = binding.loginBtn;
-        logout_btn = binding.logoutBtn;
-        login_btn.setOnClickListener(this);
-        logout_btn.setOnClickListener(this);
-        profile_uid = binding.profileUid;
-        profile_image = binding.profileImage;
-        profile_username = binding.profileUsername;
-        profile_image.setOnClickListener(this);
-        profile_username.setOnClickListener(this);
-        languageSetting = binding.languageSetting;
-        languageSetting.setOnClickListener(this);
+        setBind();
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
         // SharedPreferences에서 userId 가져오기
@@ -101,16 +90,30 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
 
         setUserProfile();
 
-        return root;
+        return binding.getRoot();
+    }
+
+    private void setBind(){
+        login_btn = binding.loginBtn;
+        logout_btn = binding.logoutBtn;
+        login_btn.setOnClickListener(this);
+        logout_btn.setOnClickListener(this);
+        profile_uid = binding.profileUid;
+        profile_image = binding.profileImage;
+        profile_username = binding.profileUsername;
+        profile_image.setOnClickListener(this);
+        profile_username.setOnClickListener(this);
+        language_setting = binding.languageSetting;
+        language_setting.setOnClickListener(this);
+        inquiry_request = binding.inquiryRequest;
+        inquiry_request.setOnClickListener(this);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         // 로그인 정보
         boolean isLoginned = prefs.getBoolean("isLoginned", false);
-        Log.d(TAG, "isLoginned: " + isLoginned);
 
         // 로그인 상태에 따른 버튼의 visibility 설정
         if (isLoginned) {
@@ -176,6 +179,54 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
             changeUsername();
         } else if (id == R.id.language_setting){
             showLanguageDialog();
+        } else if (id == R.id.inquiry_request) {
+            showInquiryDialog();
+        }
+    }
+    private void showInquiryDialog() {
+        // BottomSheetDialog 생성
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_inquiry, null);
+
+        EditText emailInput = view.findViewById(R.id.inquiry_email);
+        EditText messageInput = view.findViewById(R.id.inquiry_message);
+        Button sendButton = view.findViewById(R.id.inquiry_send_button);
+        Button cancelButton = view.findViewById(R.id.inquiry_cancel_button);
+
+        // 전송 버튼 클릭 이벤트
+        sendButton.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            String message = messageInput.getText().toString().trim();
+
+            if (!email.isEmpty() && !message.isEmpty()) {
+                sendInquiryEmail(email, message);
+                bottomSheetDialog.dismiss();
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.inquiry_error_empty), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // 취소 버튼 클릭 이벤트
+        cancelButton.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        // 다이얼로그 설정 및 표시
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
+    private void sendInquiryEmail(String email, String message) {
+        // 이메일 인텐트 생성
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("message/rfc822");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{getString(R.string.admin_email)}); // 관리자 이메일
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.inquiry_subject));
+        emailIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.from
+        )+ ": " + email + "\n\n" + getString(R.string.message) +":\n" + message);
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, getString(R.string.choose_email_client)));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(requireContext(), getString(R.string.no_email_client), Toast.LENGTH_SHORT).show();
         }
     }
 
