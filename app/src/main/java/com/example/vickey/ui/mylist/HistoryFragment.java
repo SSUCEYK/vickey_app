@@ -1,5 +1,6 @@
 package com.example.vickey.ui.mylist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +40,11 @@ public class HistoryFragment extends Fragment {
 
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
-        String userId = "1"; // 사용자 ID (임시)
+        // SharedPreferences에서 userId 가져오기
+        String userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                .getString("userId", null);
+        Log.d(TAG, "onCreateView: userId=" + userId);
+        userId = "1"; //테스트용
         loadUserHistory(userId);
 
         return view;

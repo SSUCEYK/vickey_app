@@ -8,8 +8,8 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.vickey.ui.home.ContentItem;
 import com.example.vickey.R;
+import com.example.vickey.ui.home.ContentItem;
 
 import java.util.List;
 

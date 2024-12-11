@@ -47,6 +47,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.EpisodeVie
             Log.d("EpisodeAdapter", "Episode ID: " + episode.getEpisodeId()); // 전달 전 값 확인
             Intent intent = new Intent(context, ContentDetailActivity.class);
             intent.putExtra("episodeId", episode.getEpisodeId());
+            intent.putExtra("title", episode.getTitle());
+            intent.putExtra("episodeCount", episode.getEpisodeCount());
+            intent.putExtra("thumbnailUrl", episode.getThumbnailUrl());
+            intent.putExtra("castList", episode.getCastList());
+            intent.putExtra("description", episode.getDescription());
+            intent.putExtra("releasedDate", episode.getReleasedDate());
             context.startActivity(intent);
         });
     }

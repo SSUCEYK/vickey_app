@@ -20,6 +20,8 @@ import com.example.vickey.api.ApiService;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,8 +37,10 @@ public class ContentDetailActivity extends AppCompatActivity {
     private TextView summaryTextView;
     private ImageView contentsImage;
     private ImageButton backButton;
-
+    private Episode currentEpisode;
+    private int videoNum;
     private ApiService apiService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +60,26 @@ public class ContentDetailActivity extends AppCompatActivity {
         });
         apiService = ApiClient.getApiService(this);
 
-        long episodeId = getIntent().getLongExtra("episodeId", -1L);
+        // Intent에서 전달된 이미지 리소스 ID 받기
+        Intent intent = getIntent();
+        long episodeId = intent.getLongExtra("episodeId", -1L); // (-1: 존재하지 않는 ID)
+        String title = intent.getStringExtra("title");
+        String thumbnailUrl = intent.getStringExtra("thumbnailUrl");
+        int episodeCount = intent.getIntExtra("episodeCount", -1);
+        String description = intent.getStringExtra("description");
+        String releasedDate = intent.getStringExtra("releasedDate");
+        String castList = intent.getStringExtra("castList");
+        List<String> videoUrls = intent.getStringArrayListExtra("videoUrls");
+        currentEpisode = new Episode(episodeId, title, thumbnailUrl, episodeCount, description, releasedDate, castList, videoUrls);
+        videoNum = getIntent().getIntExtra("videoNum", -1); // 특정 회차가 지정되지 않으면 -1
+
         if (episodeId == -1) { // episodeId 값 에러
-            Toast.makeText(this, "콘텐츠 정보 불러올 수 없습니다", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.content_detail_load_fail), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        loadEpisodeData(episodeId);
+        updateUI(currentEpisode);
         setupBottomSheet();
     }
 
@@ -101,15 +117,24 @@ public class ContentDetailActivity extends AppCompatActivity {
     }
 
     //전체 회수 만큼 회차 버튼 생성, 클릭하여 해당 회차로 이동
-    private void createEpisodeButtons(int episodeNum, long episodeId) {
+    private void createEpisodeButtons(long episodeId) {
+
         GridLayout gridLayout = findViewById(R.id.episodeGrid);
         gridLayout.setColumnCount(7);
 
-        for (int i = 1; i <= episodeNum; i++) {
+        int totalEpisodes = currentEpisode.getVideoUrls().size(); // Episode 객체에서 총 회차 수 가져오기
+        for (int i = 1; i <= totalEpisodes; i++) {
             Button episodeButton = new Button(this);
             episodeButton.setText(String.valueOf(i));
             episodeButton.setTextColor(getResources().getColor(android.R.color.white));
-            episodeButton.setBackground(getResources().getDrawable(R.drawable.episode_button_background));
+
+            final int episodeIndex = i - 1;
+            if (episodeIndex == videoNum) {
+                episodeButton.setBackground(getDrawable(R.drawable.episode_button_background_current_episode));
+            } else {
+                episodeButton.setBackground(getDrawable(R.drawable.episode_button_background));
+            }
+
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 100;
             params.height = 100;
@@ -131,9 +156,9 @@ public class ContentDetailActivity extends AppCompatActivity {
 
     private void updateUI(Episode episode) {
         descriptionTitle.setText(episode.getTitle());
-        descriptionEpisodeCount.setText(String.format("%d부작", episode.getEpisodeCount())); //회차 수 전체 불러오기
+        descriptionEpisodeCount.setText(String.format("%d" + getString(R.string.parts), episode.getEpisodeCount())); //회차 수 전체 불러오기
         descriptionUploadDate.setText(episode.getReleasedDate()); //업로드 일자 불러오기
-        castTextView.setText(String.format("출연: %s", episode.getCastList())); //연출 불러오기
+        castTextView.setText(String.format(getString(R.string.casts)+": %s", episode.getCastList())); //연출 불러오기
         summaryTextView.setText(episode.getDescription());
 
         if (episode.getThumbnailUrl() != null && !episode.getThumbnailUrl().isEmpty()) {
@@ -144,7 +169,7 @@ public class ContentDetailActivity extends AppCompatActivity {
                     .into(contentsImage);
         }
 
-        createEpisodeButtons(episode.getEpisodeCount(), episode.getEpisodeId());
+        createEpisodeButtons(episode.getEpisodeId());
     }
 
     @Override

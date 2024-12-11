@@ -58,6 +58,12 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
         holder.imageView.setOnClickListener(v -> {
             Intent intent = new Intent(context, LikesEpisodeActivity.class);
             intent.putExtra("episodeId", likedEpisode.getEpisodeId());
+            intent.putExtra("title", likedEpisode.getTitle());
+            intent.putExtra("episodeCount", likedEpisode.getEpisodeCount());
+            intent.putExtra("thumbnailUrl", likedEpisode.getThumbnailUrl());
+            intent.putExtra("castList", likedEpisode.getCastList());
+            intent.putExtra("description", likedEpisode.getDescription());
+            intent.putExtra("releasedDate", likedEpisode.getReleasedDate());
             context.startActivity(intent);
         });
 

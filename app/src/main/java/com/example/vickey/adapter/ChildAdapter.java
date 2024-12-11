@@ -23,7 +23,6 @@ import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHolder> {
 
-    private Context context;
     private final List<Episode> episodes;
 
     public ChildAdapter(List<Episode> episodes) {
@@ -58,7 +57,8 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
         String imageUrl = episode.getThumbnailUrl();
         String title = episode.getTitle();
 
-        context = holder.itemView.getContext();
+        // View에서 Context 가져오기
+        Context context = holder.itemView.getContext();
 
         // 이미지 바인딩
         Glide.with(context).clear(holder.imageView); // Glide 이미지 로딩 전에 이전 이미지 초기화
@@ -103,6 +103,12 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
             v.postDelayed(() -> {
                 Intent intent = new Intent(holder.itemView.getContext(), ContentDetailActivity.class);
                 intent.putExtra("episodeId", episode.getEpisodeId());
+                intent.putExtra("title", episode.getTitle());
+                intent.putExtra("episodeCount", episode.getEpisodeCount());
+                intent.putExtra("thumbnailUrl", episode.getThumbnailUrl());
+                intent.putExtra("castList", episode.getCastList());
+                intent.putExtra("description", episode.getDescription());
+                intent.putExtra("releasedDate", episode.getReleasedDate());
                 holder.itemView.getContext().startActivity(intent);
             }, 50); // 후에 실행
         });

@@ -63,7 +63,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
         String password = password_edit_text.getText().toString();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "이메일과 비밀번호를 입력하세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.get_input_email_pw), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -71,7 +71,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
             .addOnCompleteListener(task -> {
                 // 로그인 성공
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginWithEmailActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginWithEmailActivity.this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
 
                     // 결제 상태 확인
                     String uid = auth.getCurrentUser().getUid();
@@ -79,7 +79,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
 
                 } else {
                     // 로그인 실패
-                    Toast.makeText(LoginWithEmailActivity.this, "로그인 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginWithEmailActivity.this, getString(R.string.login_fail) + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
     }
@@ -99,21 +99,29 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                     //로그인(DB 저장) 성공 시 처리
                     LoginResponse loginResponse = response.body();
                     Log.d(TAG, "onResponse: " + loginResponse);
-
-                    //DB 저장 이후 결제 처리
-//                    checkSubscriptionStatus(uid);
+                    Log.d(TAG, "onResponse: User DB updated: " + uid);
 
                     // 사용자 상태 저장
                     SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("login_method", "email");
+                    //테스트용
                     editor.putString("userId", uid); // UID 저장
                     editor.apply();
 
-                    Log.d(TAG, "onResponse: User DB updated: " + uid);
-
-                    //테스트용 결제 제외
-                    passSubscription();
+                    //DB 저장 이후 결제 처리
+//                    //checkSubscriptionStatus(uid); //중복 호출 제외
+//                    if (loginResponse.isSubscribed()) {
+//                        // 결제 완료 -> 메인 페이지로 이동
+//                        Intent intent = new Intent(LoginWithEmailActivity.this, MainActivity.class);
+//                        startActivity(intent);
+//                    } else {
+//                        // 결제 미완료 -> 구독 선택 화면으로 이동
+//                        Intent intent = new Intent(LoginWithEmailActivity.this, SubscriptionActivity.class);
+//                        startActivity(intent);
+//                    }
+//                    finish();
+                    passSubscription(); //테스트용 결제 제외 (임시)
                 }
             }
 

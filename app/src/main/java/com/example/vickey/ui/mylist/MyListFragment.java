@@ -38,9 +38,9 @@ public class MyListFragment extends Fragment {
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) {
-                tab.setText("좋아요");
+                tab.setText(getString(R.string.like_tab));
             } else {
-                tab.setText("시청 내역");
+                tab.setText(getString(R.string.history_tab));
             }
         }).attach();
 

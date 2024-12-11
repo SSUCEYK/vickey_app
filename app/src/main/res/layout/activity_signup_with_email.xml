@@ -7,16 +7,16 @@
     android:background="@color/black">
 
     <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="150dp"
+        android:layout_height="160dp"
         android:src="@drawable/icon_cinema_white"
         android:layout_gravity="center"
-        android:layout_marginTop="120dp"/>
+        android:layout_marginTop="150dp"/>
+
 
     <ImageView
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="50dp"
         android:src="@drawable/vickey_logo"
         android:layout_gravity="center"/>
 
@@ -24,45 +24,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="23dp"
-        android:textColor="@color/white"
-        android:layout_marginBottom="50dp"
+        android:textSize="20sp"
+        android:textColor="@color/grey_1"
+        android:layout_marginBottom="60dp"
         android:textStyle="italic"
-        android:text="Vickey에 오신 것을 환영합니다!"/>
+        android:text="@string/welcome"/>
 
     <EditText
         android:id="@+id/email_edit_text"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:hint="이메일 입력"
+        android:hint="@string/email_placeholder"
         tools:ignore="MissingConstraints"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
         android:gravity="center"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="60dp"
         android:textSize="17dp"/>
 
     <EditText
         android:id="@+id/password_edit_text"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:hint="비밀번호 입력"
+        android:hint="@string/pw_placeholder"
         android:inputType="textPassword"
         tools:ignore="MissingConstraints"
         android:textColorHint="@color/white"
         android:textColor="@color/white"
         android:gravity="center"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="60dp"
         android:textSize="17dp"/>
 
     <Button
         android:id="@+id/signup_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="가입하기"
+        android:text="@string/logout"
         tools:ignore="MissingConstraints"
-        android:layout_marginHorizontal="40dp"
-        android:background="@drawable/radius8_pink"
+        android:layout_marginHorizontal="60dp"
+        android:background="@drawable/radius8_white"
         android:textSize="17dp"/>
 
 </LinearLayout>

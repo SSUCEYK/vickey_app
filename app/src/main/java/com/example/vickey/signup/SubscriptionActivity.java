@@ -1,28 +1,19 @@
 package com.example.vickey.signup;
 
-import android.content.Context;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
-import android.graphics.Color;
-import android.widget.Toast;
 
-import com.example.vickey.MainActivity;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.vickey.R;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 // 가입한 사용자가 구독방식을 선택하는 액티비티
 public class SubscriptionActivity extends AppCompatActivity {
@@ -71,9 +62,9 @@ public class SubscriptionActivity extends AppCompatActivity {
         basicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                basicBtn.setBackgroundColor(Color.parseColor("#FF4E88"));
-                standardBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                premiumBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                basicBtn.setBackgroundColor(getColor(R.color.pay_btn));
+                standardBtn.setBackgroundColor(getColor(R.color.white));
+                premiumBtn.setBackgroundColor(getColor(R.color.white));
                 animateTextColorChange(basicPrice, basicHD, basicUHD, basicAccess, basicWatch, stdPrice, stdHD, stdUHD, stdAccess, stdWatch, premPrice, premHD, premUHD, premAccess, premWatch, Color.parseColor("#FF4E88"));
                 selected_subscription_type = 1;
             }
@@ -83,9 +74,9 @@ public class SubscriptionActivity extends AppCompatActivity {
         standardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                standardBtn.setBackgroundColor(Color.parseColor("#FF4E88"));
-                premiumBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                basicBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                standardBtn.setBackgroundColor(getColor(R.color.pay_btn));
+                premiumBtn.setBackgroundColor(getColor(R.color.white));
+                basicBtn.setBackgroundColor(getColor(R.color.white));
                 animateTextColorChange(stdPrice, stdHD, stdUHD, stdAccess, stdWatch, basicPrice, basicHD, basicUHD, basicAccess, basicWatch, premPrice, premHD, premUHD, premAccess, premWatch, Color.parseColor("#FF4E88"));
                 selected_subscription_type = 2;
             }
@@ -95,21 +86,9 @@ public class SubscriptionActivity extends AppCompatActivity {
         premiumBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                premiumBtn.setBackgroundColor(Color.parseColor("#FF4E88"));
-                basicBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                standardBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                animateTextColorChange(premPrice, premHD, premUHD, premAccess, premWatch, basicPrice, basicHD, basicUHD, basicAccess, basicWatch, stdPrice, stdHD, stdUHD, stdAccess, stdWatch, Color.parseColor("#FF4E88"));
-                selected_subscription_type = 3;
-            }
-        });
-
-
-        premiumBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                premiumBtn.setBackgroundColor(Color.parseColor("#FF4E88"));
-                basicBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                standardBtn.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                premiumBtn.setBackgroundColor(getColor(R.color.pay_btn));
+                basicBtn.setBackgroundColor(getColor(R.color.white));
+                standardBtn.setBackgroundColor(getColor(R.color.white));
                 animateTextColorChange(premPrice, premHD, premUHD, premAccess, premWatch, basicPrice, basicHD, basicUHD, basicAccess, basicWatch, stdPrice, stdHD, stdUHD, stdAccess, stdWatch, Color.parseColor("#FF4E88"));
                 selected_subscription_type = 3;
             }
@@ -139,8 +118,7 @@ public class SubscriptionActivity extends AppCompatActivity {
                 if (selectedSubscription != null) {
 
                     Intent intent = new Intent(SubscriptionActivity.this, WebViewActivity.class);
-                    //intent.putExtra("url", "http://10.0.2.2:8080/pay");
-                    intent.putExtra("url", "http://192.168.0.63:8080/pay"); // ! 결제 테스트시 로컬 ip 사용해야함
+                    intent.putExtra("url", getString(R.string.local_url)+"pay");
                     intent.putExtra("subscriptionType", selectedSubscription.name());
 
                     startActivity(intent);
@@ -164,7 +142,7 @@ public class SubscriptionActivity extends AppCompatActivity {
                                         TextView selectedText10, TextView selectedText11, TextView selectedText12,
                                         TextView selectedText13, TextView selectedText14, TextView selectedText15, int selectedColor) {
 
-        int defaultColor = Color.parseColor("#FFFFFF"); // 기본 색상: 흰색
+        int defaultColor = getColor(R.color.white); // 기본 색상: 흰색
         ValueAnimator colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), defaultColor, selectedColor);
         colorAnimator.setDuration(300); // 500ms 동안 색상 변경
         colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

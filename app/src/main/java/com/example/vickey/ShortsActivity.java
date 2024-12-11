@@ -53,7 +53,7 @@ public class ShortsActivity extends AppCompatActivity {
         int videoNum = getIntent().getIntExtra("videoNum", -1); // 특정 회차가 지정되지 않으면 -1
 
         if (episodeId == -1) {
-            Toast.makeText(this, "콘텐츠 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.content_detail_load_fail), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -75,7 +75,7 @@ public class ShortsActivity extends AppCompatActivity {
                     setupVideoPlayer(episode, videoNum);
                 } else {
                     Toast.makeText(ShortsActivity.this,
-                            "콘텐츠를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+                            getString(R.string.content_detail_load_fail), Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
@@ -83,7 +83,7 @@ public class ShortsActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Episode> call, Throwable t) {
                 Toast.makeText(ShortsActivity.this,
-                        "네트워크 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                        getString(R.string.network_error), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -114,11 +114,12 @@ public class ShortsActivity extends AppCompatActivity {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.episode_bottom_sheet, null);
         episodeBottomSheet.setContentView(bottomSheetView);
 
+        int totalEpisodes = currentEpisode.getVideoUrls().size(); // Episode 객체에서 총 회차 수 가져오기
+        Log.d(TAG, "showEpisodeBottomSheet: totalEpisodes(cnt)="+totalEpisodes);
+        int currentEpisodeIndex = viewPager2.getCurrentItem();
+
         GridLayout gridLayout = bottomSheetView.findViewById(R.id.shorts_episodeGrid);
         gridLayout.setColumnCount(7);
-
-        int currentEpisodeIndex = viewPager2.getCurrentItem();
-        int totalEpisodes = currentEpisode.getEpisodeCount(); // Episode 객체에서 총 회차 수 가져오기
 
         for (int i = 1; i <= totalEpisodes; i++) {
             Button episodeButton = new Button(this);
@@ -165,13 +166,6 @@ public class ShortsActivity extends AppCompatActivity {
         this.currentEpisode = episode;
         Log.d(TAG, "setupVideoPlayer: episode.getVideoURLs()=" + episode.getVideoUrls());
         try {
-//            // JSON 파싱
-//            List<String> videoUrls = parseVideoUrls(episode.getVideoURLs());
-//            if (videoUrls.isEmpty()) {
-//                Toast.makeText(this, "재생할 수 있는 영상이 없습니다.", Toast.LENGTH_SHORT).show();
-//                finish();
-//                return;
-//            }
 
             List<String> videoUrls = episode.getVideoUrls();
 
@@ -214,7 +208,7 @@ public class ShortsActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             Log.e(TAG, "Error setting up video player", e);
-            Toast.makeText(this, "동영상을 불러오는 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.video_load_error), Toast.LENGTH_SHORT).show();
             finish();
         }
     }

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.vickey.ContentDetailActivity;
 import com.example.vickey.R;
 import com.example.vickey.ShortsActivity;
 import com.example.vickey.api.dto.CheckWatchedResponse;
+import com.example.vickey.api.models.Episode;
 
 import java.util.List;
 
@@ -49,39 +48,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         }
 
         CheckWatchedResponse cw = watchedResponses.get(position);
-
+        Episode episode = cw.getEpisode();
         String url = cw.getThumbnailUrl();
         holder.bindImage(url);
 
-        holder.textView.setText(cw.getEpisode().getTitle() + "/" + cw.getVideoNum() + "회");
+        String t = episode.getTitle() + " (" + cw.getVideoNum() + "회)";
+        holder.textView.setText(t);
 
         holder.imageView.setOnClickListener(v -> {
             // 비디오 플레이 화면으로 이동 (추가: progress 시점을 기준으로 재생)
             Intent intent = new Intent(context, ShortsActivity.class);
-            intent.putExtra("videoId", cw.getVideoId());
-            intent.putExtra("ThumbnailUrl", cw.getThumbnailUrl());
-            intent.putExtra("Progress", cw.getProgress());
-            context.startActivity(intent);
-        });
+            intent.putExtra("episodeId", episode.getEpisodeId());
+            intent.putExtra("videoNum", cw.getVideoNum());
 
-        // 점 세 개 버튼 클릭 이벤트
-        holder.menuButton.setOnClickListener(v -> {
-            // 애니메이션 효과 추가
-            holder.menuButton.animate()
-                    .scaleX(1.2f) // X축 확대
-                    .scaleY(1.2f) // Y축 확대
-                    .setDuration(150) // 애니메이션 지속 시간
-                    .withEndAction(() -> { // 애니메이션 끝난 후 실행
-                        holder.menuButton.animate()
-                                .scaleX(1.0f) // 원래 크기로 복귀
-                                .scaleY(1.0f)
-                                .setDuration(150)
-                                .start();
-                    }).start();
-
-            // 클릭 후 상세 페이지로 이동
-            Intent intent = new Intent(context, ContentDetailActivity.class);
-            //intent.putExtra("Episode", episode);
             context.startActivity(intent);
         });
 
@@ -94,13 +73,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        ImageButton menuButton;
         TextView textView;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.history_image);
-            menuButton = itemView.findViewById(R.id.menu_button); // 점 세 개 버튼 참조
             textView = itemView.findViewById(R.id.history_text);
         }
 

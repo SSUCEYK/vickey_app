@@ -5,15 +5,26 @@ public class LoginResponse {
     private String username;
     private String email;
     private String profilePictureUrl;
+    private boolean isSubscribed;
 
-    public LoginResponse(String userId, String username, String email, String profilePictureUrl) {
+
+    public LoginResponse(String userId, String username, String email, String profilePictureUrl, boolean isSubscribed) {
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.profilePictureUrl = profilePictureUrl;
+        this.isSubscribed = isSubscribed;
     }
 
     // Getters and Setters
+
+    public boolean isSubscribed() {
+        return isSubscribed;
+    }
+
+    public void setSubscribed(boolean subscribed) {
+        isSubscribed = subscribed;
+    }
 
     public String getUserId() {
         return userId;

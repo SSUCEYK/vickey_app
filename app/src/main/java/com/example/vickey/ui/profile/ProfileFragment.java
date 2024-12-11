@@ -1,22 +1,39 @@
 package com.example.vickey.ui.profile;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.vickey.signup.LoginActivity;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.vickey.R;
+import com.example.vickey.api.ApiClient;
+import com.example.vickey.api.ApiService;
+import com.example.vickey.api.models.User;
 import com.example.vickey.databinding.FragmentProfileBinding;
+import com.example.vickey.signup.LoginActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -24,11 +41,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.kakao.sdk.user.UserApiClient;
 import com.navercorp.nid.NaverIdLoginSDK;
 
+import java.io.File;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ProfileFragment extends Fragment implements View.OnClickListener{
 
+    private static final String TAG = "ProfileFragment";
+    private static final int REQUEST_IMAGE_PICK = 101;
     private FragmentProfileBinding binding;
     private Button login_btn, logout_btn;
-    private static final String TAG = "ProfileFragment";
+
+    private ImageView profile_image;
+    private TextView profile_username;
+    private TextView profile_uid;
+    private User user = new User();
+    private String userId;
+    private ApiService apiService;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -42,7 +75,75 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         login_btn.setOnClickListener(this);
         logout_btn.setOnClickListener(this);
 
+        profile_uid = binding.profileUid;
+        profile_image = binding.profileImage;
+        profile_username = binding.profileUsername;
+        profile_image.setOnClickListener(this);
+        profile_username.setOnClickListener(this);
+
+        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
+
+        // SharedPreferences에서 userId 가져오기
+        userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                .getString("userId", null);
+        Log.d(TAG, "onCreateView: userId=" + userId);
+        userId = "1"; //테스트용
+        profile_uid.setText("UID: " + userId);
+
+        setUserProfile();
+
         return root;
+    }
+
+    public void setUserProfile(){
+        user.setUserId(userId);
+        apiService.getUserProfile(userId).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    user = response.body();
+                    updateUserProfileUI(user);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e(TAG, "Failed to fetch user profile", t);
+
+                // 기본값 설정
+                user.setUserId(userId);
+                user.setUsername(getString(R.string.default_user_name));
+                user.setProfilePictureUrl(getString(R.string.default_user_profileImg)); // 기본 프로필 이미지 URL 설정
+                updateUserProfileUI(user);
+            }
+        });
+    }
+
+    private void updateUserProfileUI(User user) {
+        if (user == null) {
+            Log.e(TAG, "User is null, cannot update UI");
+            return;
+        }
+
+        profile_username.setText(user.getUsername());
+
+        Glide.with(requireContext())
+                .load(user.getProfilePictureUrl())
+                .apply(new RequestOptions()
+                        .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
+                .into(profile_image);
+    }
+
+    private void updateUserProfileThumbnailUI(String url) {
+        if (url == null) {
+            Log.e(TAG, "url is null, cannot update UI");
+            return;
+        }
+        Glide.with(requireContext())
+                .load(url)
+                .apply(new RequestOptions()
+                        .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
+                .into(profile_image);
     }
 
     @Override
@@ -52,8 +153,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         // Intent로부터 로그인 여부 받기 (필요에 따라 Activity에서 전달)
         boolean isLoginned = getActivity().getIntent().getBooleanExtra("isLoginned", false);
         Log.d(TAG, "isLoginned: " + isLoginned); // 로그 추가
-
-        // view에서 버튼 참조
 
         // 로그인 상태에 따른 버튼의 visibility 설정
         if (isLoginned) {
@@ -74,44 +173,154 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         if (id == R.id.login_btn) {
             startActivity(new Intent(requireActivity(), LoginActivity.class));
         } else if (id == R.id.logout_btn) {
-            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
-            String loginMethod = sharedPreferences.getString("login_method", "");
-
-            if (loginMethod.equals("kakao")){
-                UserApiClient.getInstance().logout(error -> {
-                    if (error != null) {
-                        Log.e("Logout", "카카오 로그아웃 실패", error);
-                    } else {
-                        Toast.makeText(getActivity(), "카카오 로그아웃 성공", Toast.LENGTH_SHORT).show();
-                    }
-                    return null;
-                });
-            }
-            else if (loginMethod.equals("naver")){
-                try {
-                    NaverIdLoginSDK.INSTANCE.logout();
-                    Toast.makeText(getActivity(), "네이버 로그아웃 성공", Toast.LENGTH_SHORT).show();
-                } catch (Exception e){
-                    Log.e("Logout", "네이버 로그아웃 실패", e);
-                }
-            }
-            else if (loginMethod.equals("google")){
-                GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
-                mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
-                    Toast.makeText(getActivity(), "구글 로그아웃 성공", Toast.LENGTH_SHORT).show();
-                });
-            }
-            else if (loginMethod.equals("email")){
-                try {
-                    FirebaseAuth.getInstance().signOut();  // Firebase에서 로그아웃
-                    Toast.makeText(getActivity(), "이메일 로그아웃 성공", Toast.LENGTH_SHORT).show();
-                } catch (Exception e){
-                    Log.e("Logout", "로그아웃 실패", e);
-                }
-            }
-
-            login_btn.setVisibility(View.VISIBLE);
-            logout_btn.setVisibility(View.GONE);
+            logout();
+        } else if (id == R.id.profile_image) {
+            pickProfileImage();
+        } else if (id == R.id.profile_username) {
+            changeUsername();
         }
+
+    }
+
+    private void logout(){
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String loginMethod = sharedPreferences.getString("login_method", "");
+
+        if (loginMethod.equals("kakao")){
+            UserApiClient.getInstance().logout(error -> {
+                if (error != null) {
+                    makeLogoutToastMsg(false);
+                    Log.e("Logout", "카카오 로그아웃 실패", error);
+                } else {
+                    makeLogoutToastMsg(true);
+                }
+                return null;
+            });
+        }
+        else if (loginMethod.equals("naver")){
+            try {
+                NaverIdLoginSDK.INSTANCE.logout();
+                makeLogoutToastMsg(true);
+            } catch (Exception e){
+                makeLogoutToastMsg(false);
+                Log.e("Logout", "네이버 로그아웃 실패", e);
+            }
+        }
+        else if (loginMethod.equals("google")){
+            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
+            mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
+                makeLogoutToastMsg(true);
+            });
+        }
+        else if (loginMethod.equals("email")){
+            try {
+                FirebaseAuth.getInstance().signOut();  // Firebase에서 로그아웃
+                makeLogoutToastMsg(true);
+            } catch (Exception e){
+                makeLogoutToastMsg(false);
+                Log.e("Logout", getString(R.string.logout_fail), e);
+            }
+        }
+
+        login_btn.setVisibility(View.VISIBLE);
+        logout_btn.setVisibility(View.GONE);
+    }
+
+    private void makeLogoutToastMsg(boolean success){
+        if (success){
+            Toast.makeText(getActivity(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(getActivity(), getString(R.string.logout_fail), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void changeUsername() {
+        // 클릭 시 유저 네임 변경할 수 있도록 설정
+        // 변경 시 DB에 저장까지
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.change_user_name));
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton(getString(R.string.save), (dialog, which) -> {
+            String newUsername = input.getText().toString();
+            updateUsername(userId, newUsername);
+        });
+        builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void updateUsername(String userId, String newUsername) {
+        apiService.updateUsername(userId, newUsername).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    profile_username.setText(newUsername);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, getString(R.string.user_name_update_error), t);
+            }
+        });
+    }
+
+    private void pickProfileImage() {
+        // 프로필 사진 디바이스에서 업로드해 변경할 수 있도록 설정
+        // 변경 시 DB에 저장까지
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK && data != null) {
+            Uri selectedImage = data.getData();
+            uploadProfileImage(selectedImage);
+        }
+    }
+
+    private void uploadProfileImage(Uri imageUri) {
+        File file = new File(getRealPathFromURI(imageUri));
+        RequestBody requestFile = RequestBody.create(file, okhttp3.MediaType.parse("image/*"));
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+        apiService.uploadProfileImage(userId, body).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful()) {
+                    String profileUrl = response.body();
+                    updateUserProfileThumbnailUI(profileUrl); // 프로필 다시 불러오기
+                } else {
+                    Log.e(TAG, "Failed to upload profile image: " + response.message());
+                    Toast.makeText(requireContext(), getString(R.string.profileImg_upload_error), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(TAG, "Error uploading profile image", t);
+                Toast.makeText(requireContext(), getString(R.string.profileImg_upload_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String getRealPathFromURI(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = requireActivity().getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            String path = cursor.getString(column_index);
+            cursor.close();
+            return path;
+        }
+        return null;
     }
 }

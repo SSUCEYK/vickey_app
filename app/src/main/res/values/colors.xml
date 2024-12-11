@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="grey_5">#ced4da</color>
+    <color name="grey_0">#ced4da</color>
     <color name="grey_1">#BDBDBD</color>
     <color name="grey_4">#6b6b6b</color>
     <color name="grey_7">#495057</color>
@@ -19,4 +19,5 @@
     <color name="dark_navy_blue">#03254c</color>
     <color name="bright_pink">#FF007F</color>
     <color name="hot_pink">#DB0075</color>
+    <color name="pay_btn">#FF4E88</color>
 </resources>

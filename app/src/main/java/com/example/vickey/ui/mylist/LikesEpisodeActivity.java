@@ -1,7 +1,6 @@
 package com.example.vickey.ui.mylist;
 
-import static android.content.ContentValues.TAG;
-
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +14,7 @@ import com.example.vickey.adapter.LikesEpisodeAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.dto.LikedVideosResponse;
+import com.example.vickey.api.models.Episode;
 
 import java.util.List;
 
@@ -27,7 +27,9 @@ public class LikesEpisodeActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private LikesEpisodeAdapter adapter;
     private ApiService apiService;
+    private Episode episode;
     private long episodeId;
+    private final String TAG = "LikesEpisodeActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +40,15 @@ public class LikesEpisodeActivity extends AppCompatActivity {
 
         // Intent에서 전달된 이미지 리소스 ID 받기
         Intent intent = getIntent();
-        episodeId = intent.getLongExtra("episodeId", -1); // (-1: 존재하지 않는 ID)
+        episodeId = intent.getLongExtra("episodeId", -1L); // (-1: 존재하지 않는 ID)
+        String title = intent.getStringExtra("title");
+        String thumbnailUrl = intent.getStringExtra("thumbnailUrl");
+        int episodeCount = intent.getIntExtra("episodeCount", -1);
+        String description = intent.getStringExtra("description");
+        String releasedDate = intent.getStringExtra("releasedDate");
+        String castList = intent.getStringExtra("castList");
+        List<String> videoUrls = intent.getStringArrayListExtra("videoUrls");
+        episode = new Episode(episodeId, title, thumbnailUrl, episodeCount, description, releasedDate, castList, videoUrls);
 
         // 리사이클러뷰 설정
         recyclerView = findViewById(R.id.recyclerView_likes_episode);
@@ -46,7 +56,12 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         
         apiService = ApiClient.getClient(this).create(ApiService.class);
 
-        String userId = "1"; // 사용자 ID (예시)
+        // SharedPreferences에서 userId 가져오기
+        String userId = getApplicationContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                .getString("userId", null);
+        Log.d(TAG, "onCreateView: userId=" + userId);
+        userId = "1"; //테스트용
+
         loadLikedVideos(userId);
 
     }
@@ -59,7 +74,7 @@ public class LikesEpisodeActivity extends AppCompatActivity {
                     List<LikedVideosResponse> likedVideosResponses = response.body();
 
                     // 어댑터 설정
-                    adapter = new LikesEpisodeAdapter(likedVideosResponses, LikesEpisodeActivity.this);
+                    adapter = new LikesEpisodeAdapter(likedVideosResponses, episode, LikesEpisodeActivity.this);
                     recyclerView.setAdapter(adapter);
                 }
             }

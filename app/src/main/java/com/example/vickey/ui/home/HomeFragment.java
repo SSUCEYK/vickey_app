@@ -95,7 +95,6 @@ public class HomeFragment extends Fragment {
         // ViewModel에 데이터를 로드하고 관찰
         observeViewModel(); // ViewModel 관찰
         loadDataOnce(); // 초기 데이터 로드 메서드
-//        setupMenuProvider(view); // (검색 액션바) 메뉴 설정
 
         // 검색 결과를 위한 RecyclerView 설정
         searchRecyclerView = binding.searchResultRecyclerView;
@@ -214,8 +213,14 @@ public class HomeFragment extends Fragment {
     // 초기 데이터 로드
     private void loadDataOnce() {
         if (homeViewModel.isDataLoaded()) return;
+
+        String[] names = {getString(R.string.content_list_name1),
+                getString(R.string.content_list_name2),
+                getString(R.string.content_list_name3)
+        };
+
         homeViewModel.loadSliderEpisodes(sliderSize);
-        homeViewModel.loadContentItems(contentsListSize);
+        homeViewModel.loadContentItems(contentsListSize, names);
     }
 
     private void setupRecyclerView(List<ContentItem> contentItems) {
@@ -402,7 +407,7 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<List<Episode>> call, Throwable t) {
                 if (isAdded()) {
                     Log.e("API_ERROR", "API 호출 실패", t);  // 구체적인 에러 로깅
-                    String errorMessage = "검색 중 오류가 발생했습니다: " + t.getMessage();
+                    String errorMessage = getString(R.string.search_error) +": " + t.getMessage();
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }

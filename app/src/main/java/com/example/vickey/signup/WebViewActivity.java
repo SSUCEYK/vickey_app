@@ -1,5 +1,6 @@
 package com.example.vickey.signup;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +39,7 @@ public class WebViewActivity extends AppCompatActivity {
         setupTouchListener();
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView() {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -60,11 +62,12 @@ public class WebViewActivity extends AppCompatActivity {
         String uid = sharedPreferences.getString("uid", null);
         String subscriptionType = getIntent().getStringExtra("subscriptionType");
 
-        String url = "http://192.168.0.63:8080/pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
+        String url = getString(R.string.local_url)+"pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
         Log.d(TAG, "Loading URL: " + url);
         webView.loadUrl(url);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setupTouchListener() {
         webView.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP && isPaymentCompleted) {
@@ -133,6 +136,7 @@ public class WebViewActivity extends AppCompatActivity {
             return true;
         }
 
+        @SuppressLint("SetJavaScriptEnabled")
         private void setupNewWebViewSettings(WebView webView) {
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);

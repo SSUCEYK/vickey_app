@@ -88,6 +88,13 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             v.postDelayed(() -> {
                 Intent intent = new Intent(context, ContentDetailActivity.class);
                 intent.putExtra("episodeId", episode.getEpisodeId());
+                intent.putExtra("title", episode.getTitle());
+                intent.putExtra("episodeCount", episode.getEpisodeCount());
+                intent.putExtra("thumbnailUrl", episode.getThumbnailUrl());
+                intent.putExtra("castList", episode.getCastList());
+                intent.putExtra("description", episode.getDescription());
+                intent.putExtra("releasedDate", episode.getReleasedDate());
+
                 context.startActivity(intent);
             }, 50); // 후에 실행
         });

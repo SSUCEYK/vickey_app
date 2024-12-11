@@ -12,6 +12,17 @@ public class Episode {
     private String castList;         // 출연진/연출
     private List<String> videoUrls;  // Video URL 리스트 (변경)
 
+    public Episode(long episodeId, String title, String thumbnailUrl, int episodeCount, String description, String releasedDate, String castList, List<String> videoUrls) {
+        this.episodeId = episodeId;
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.episodeCount = episodeCount;
+        this.description = description;
+        this.releasedDate = releasedDate;
+        this.castList = castList;
+        this.videoUrls = videoUrls;
+    }
+
     // Getters and Setters
     public long getEpisodeId() {
         return episodeId;

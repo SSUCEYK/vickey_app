@@ -66,17 +66,15 @@ public class HomeViewModel extends ViewModel {
         });
     }
 
-    public void loadContentItems(int n) {
+    public void loadContentItems(int n, String[] names) {
 
         if (contentItems.getValue() != null && !contentItems.getValue().isEmpty()) {
             return; // 데이터가 이미 로드되었다면 API 호출을 건너뜀
         }
 
         List<ContentItem> items = new ArrayList<>();
-        String[] names = {"인기콘텐츠", "추천콘텐츠", "랜덤콘텐츠"};
 
         Log.d(TAG, "loadContentItems: n=" + n);
-
         for (String name : names) {
             apiService.getRandomEpisodes(n).enqueue(new Callback<List<Episode>>() {
                 @Override
