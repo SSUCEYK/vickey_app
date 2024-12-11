@@ -45,6 +45,14 @@ public interface ApiService {
     @GET("api/episodes/randomEpisodes")
     Call<List<Episode>> getRandomEpisodes(@Query("n") int n);
 
+    // 좋아요가 가장 많은 에피소드 가져오기
+    @GET("api/episodes/topLikedEpisodes")
+    Call<List<Episode>> getTopNLikedEpisodes(@Query("n") int n);
+
+    // 조회수가 가장 많은 에피소드 가져오기
+    @GET("api/episodes/topWatchedEpisodes")
+    Call<List<Episode>> getTopNWatchedEpisodes(@Query("n") int n);
+
     // ID로 에피소드 데이터 가져오기
     @GET("api/episodes/{id}")
     Call<Episode> getEpisodeById(@Path("id") Long id);
