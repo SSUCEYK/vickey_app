@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -47,7 +48,11 @@ import com.kakao.sdk.user.UserApiClient;
 import com.navercorp.nid.NaverIdLoginSDK;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -76,16 +81,17 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        Log.d(TAG, "onCreateView called");
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         setBind();
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
 
         // SharedPreferences에서 userId 가져오기
         prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        userId = prefs.getString("userId", null);
+        SharedPreferences statePrefs = requireContext().getSharedPreferences("app_state", Context.MODE_PRIVATE);
+
+        // 기존 데이터 복원
+        userId = statePrefs.getString("current_user_id", prefs.getString("userId", null));
         Log.d(TAG, "onCreateView: userId=" + userId);
-        //userId = "1"; //테스트용
         profile_uid.setText("UID: " + userId);
 
         setUserProfile();
@@ -155,6 +161,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         editor.putString("language", langCode);
         editor.apply();
 
+        // 현재 상태 데이터를 저장 (예: userId)
+        SharedPreferences statePrefs = requireContext().getSharedPreferences("app_state", Context.MODE_PRIVATE);
+        statePrefs.edit().putString("current_user_id", userId).apply();
+
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);
 
@@ -164,9 +174,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         config.setLocale(locale);
         resources.updateConfiguration(config, displayMetrics);
 
+        // 앱 재시작
         Intent intent = new Intent(getContext(), getActivity().getClass());
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        requireActivity().finish();
     }
 
     @Override
@@ -272,7 +284,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
 
         String userId = user.getUserId();
         userId = userId.length() > 10 ? userId.substring(0, 10) : userId;
-        profile_uid.setText(userId);
+        profile_uid.setText("UID: " + userId);
 
         String profileUrl = user.getProfilePictureUrl();
         if ((profileUrl == null) || (profileUrl.isEmpty())){
@@ -420,11 +432,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         RequestBody requestFile = RequestBody.create(file, okhttp3.MediaType.parse("image/*"));
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        apiService.uploadProfileImage(userId, body).enqueue(new Callback<String>() {
+        apiService.uploadProfileImage(userId, body).enqueue(new Callback<Map<String, String>>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
                 if (response.isSuccessful()) {
-                    String profileUrl = response.body();
+                    String profileUrl = response.body().get("profileImageUrl");
+
+                    Log.d(TAG, "onResponse: profileUrl=" + profileUrl);
+
                     updateUserProfileThumbnailUI(profileUrl); // 프로필 다시 불러오기
                 } else {
                     Log.e(TAG, "Failed to upload profile image: " + response.message());
@@ -433,7 +448,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<Map<String, String>> call, Throwable t) {
                 Log.e(TAG, "Error uploading profile image", t);
                 Toast.makeText(requireContext(), getString(R.string.profileImg_upload_error), Toast.LENGTH_SHORT).show();
             }
@@ -441,14 +456,28 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     }
 
     private String getRealPathFromURI(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = requireActivity().getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            String path = cursor.getString(column_index);
-            cursor.close();
-            return path;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try (InputStream inputStream = requireContext().getContentResolver().openInputStream(uri)) {
+                File tempFile = File.createTempFile("upload", ".jpg", requireContext().getCacheDir());
+                try (FileOutputStream outStream = new FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outStream.write(buffer, 0, bytesRead);
+                    }
+                }
+                return tempFile.getAbsolutePath();
+            } catch (IOException e) {
+                Log.e(TAG, "Error retrieving file path", e);
+            }
+        } else {
+            String[] projection = {MediaStore.Images.Media.DATA};
+            try (Cursor cursor = requireContext().getContentResolver().query(uri, projection, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    return cursor.getString(columnIndex);
+                }
+            }
         }
         return null;
     }

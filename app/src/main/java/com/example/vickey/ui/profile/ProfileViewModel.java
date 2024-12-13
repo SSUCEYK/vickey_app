@@ -4,16 +4,16 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.vickey.api.models.User;
+
 public class ProfileViewModel extends ViewModel {
+    private final MutableLiveData<User> user = new MutableLiveData<>();
 
-    private final MutableLiveData<String> mText;
-
-    public ProfileViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is profile fragment");
+    public LiveData<User> getUser() {
+        return user;
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public void setUser(User newUser) {
+        user.setValue(newUser);
     }
 }

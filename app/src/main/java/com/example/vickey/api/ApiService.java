@@ -11,6 +11,7 @@ import com.example.vickey.api.models.User;
 import com.example.vickey.signup.UserStatus;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -113,7 +114,7 @@ public interface ApiService {
 
     @Multipart
     @POST("api/users/{userId}/profile-image")
-    Call<String> uploadProfileImage(@Path("userId") String userId, @Part MultipartBody.Part file);
+    Call<Map<String, String>> uploadProfileImage(@Path("userId") String userId, @Part MultipartBody.Part file);
 
 }
 

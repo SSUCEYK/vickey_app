@@ -60,7 +60,7 @@
         android:id="@+id/signup_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/logout"
+        android:text="@string/signup_text"
         tools:ignore="MissingConstraints"
         android:layout_marginHorizontal="60dp"
         android:background="@drawable/radius8_white"
