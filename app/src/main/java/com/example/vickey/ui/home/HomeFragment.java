@@ -1,6 +1,7 @@
 package com.example.vickey.ui.home;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -104,42 +106,54 @@ public class HomeFragment extends Fragment {
 
         //검색
         requireActivity().addMenuProvider(new MenuProvider() {
+            @SuppressLint("ResourceType")
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 
                 menuInflater.inflate(R.menu.actionbar_menu, menu);
-                Log.d(TAG, "Menu created: " + menu.size()); // 메뉴 아이템 수 출력
-
                 MenuItem menuItem = menu.findItem(R.id.search);
                 SearchView searchView = (SearchView) menuItem.getActionView();
-                searchView.setQueryHint(getString(R.string.search_query_hint));
-
-                // SearchView 스타일 설정
-                searchView.setBackgroundResource(android.R.color.transparent);
-                int searchTextId = searchView.getContext().getResources()
-                        .getIdentifier("android:id/search_src_text", null, null);
-                EditText searchEditText = searchView.findViewById(searchTextId);
-
-                if (searchEditText != null) {
-                    searchEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                    searchEditText.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.grey_1));
-                    searchEditText.setHighlightColor(ContextCompat.getColor(requireContext(), R.color.white));
-
-                    // 로그로 색상 값 출력
-                    Log.d(TAG, "Text color: " + searchEditText.getCurrentTextColor());
-                    Log.d(TAG, "Hint text color: " + searchEditText.getHintTextColors());
-                }
+                logSearchViewChildren(searchView, "");
 
                 // 힌트 텍스트 설정
                 searchView.setQueryHint(getString(R.string.search_query_hint));
+                searchView.setBackgroundColor(R.color.black_1);
+
+                // SearchView 내부의 EditText 색상을 초기화 시점에 설정
+                searchView.post(() -> applySearchTextColor(searchView));
+
+                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        applySearchTextColor(searchView);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        return true;
+                    }
+                });
+
 
                 // SearchView 리스너 설정
+                searchView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        searchView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        applySearchTextColor(searchView);
+                        return true;
+                    }
+                });
+
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
                     private Handler handler = new Handler();
                     private Runnable searchRunnable;
 
                     @Override
                     public boolean onQueryTextSubmit(String query) {
+                        applySearchTextColor(searchView);
                         performSearch(query);
                         return true;
                     }
@@ -149,6 +163,8 @@ public class HomeFragment extends Fragment {
                         if (searchRunnable != null) {
                             handler.removeCallbacks(searchRunnable);
                         }
+
+                        applySearchTextColor(searchView);
 
                         // 검색어가 비어있으면 즉시 결과 초기화
                         if (newText.trim().isEmpty()) {
@@ -208,6 +224,42 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
+    private void logSearchViewChildren(View view, String indent) {
+        Log.d(TAG, indent + "View: " + view.getClass().getName() + ", ID: " + view.getId());
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                logSearchViewChildren(group.getChildAt(i), indent + "  ");
+            }
+        }
+    }
+
+
+    // 색상 설정
+    @SuppressLint({"RestrictedApi", "ResourceAsColor"})
+    private void applySearchTextColor(SearchView searchView) {
+
+//        int searchTextId = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+        // SearchAutoComplete 뷰의 ID
+        int searchTextId = 2131362345; // 커스텀 ID 사용
+        EditText searchEditText = searchView.findViewById(searchTextId);
+
+        // 확인된 클래스에 접근
+        if (searchEditText instanceof androidx.appcompat.widget.SearchView.SearchAutoComplete) {
+            searchEditText.setTextColor(Color.WHITE); // 텍스트 색상
+            searchEditText.setBackgroundColor(Color.BLACK); // 배경 색상
+            searchEditText.setHintTextColor(Color.LTGRAY); // 힌트 색상
+
+            // 디버깅 로그
+            Log.d(TAG, "EditText instance: " + searchEditText);
+            Log.d(TAG, "Text color: " + searchEditText.getCurrentTextColor());
+            Log.d(TAG, "Hint color: " + searchEditText.getHintTextColors());
+        } else {
+            Log.d(TAG, "applySearchTextColor: searchEditText is null or not a valid instance.");
+        }
+    }
+
 
     // 초기 데이터 로드
     private void loadDataOnce() {

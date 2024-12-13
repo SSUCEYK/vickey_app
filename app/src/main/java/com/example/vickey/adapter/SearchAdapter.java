@@ -3,18 +3,23 @@ package com.example.vickey.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.vickey.ContentDetailActivity;
-import com.example.vickey.api.models.Episode;
 import com.example.vickey.R;
+import com.example.vickey.api.models.Episode;
 
 import java.util.List;
 
@@ -38,9 +43,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.EpisodeVie
     @Override
     public void onBindViewHolder(@NonNull EpisodeViewHolder holder, int position) {
         Episode episode = episodeList.get(position);
+        holder.titleTextView.setTextColor(Color.WHITE);
         holder.titleTextView.setText(episode.getTitle());
         Glide.with(holder.thumbnailImageView.getContext())
                 .load(episode.getThumbnailUrl())
+                .apply(RequestOptions.bitmapTransform(new RoundedCorners(16))) // 라운드 코너 반경 설정
                 .into(holder.thumbnailImageView);
 
         holder.itemView.setOnClickListener(v -> { // 클릭 시 상세 정보 액티비티(ContentDetailActivity.java)로 이동

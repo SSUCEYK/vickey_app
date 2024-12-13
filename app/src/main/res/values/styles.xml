@@ -12,10 +12,9 @@
     </style>
 
     <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
-        <item name="queryBackground">@android:color/transparent</item> <!-- 배경 제거 -->
         <item name="android:textColor">@color/white</item> <!-- 텍스트 색상 -->
         <item name="android:textColorHint">@color/grey_1</item> <!-- 힌트 텍스트 색상 -->
-        <item name="android:background">@color/black</item> <!-- 전체 배경색 -->
+        <item name="android:background">@color/black_1</item> <!-- 전체 배경색 -->
     </style>
 
 </resources>
