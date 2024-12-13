@@ -37,6 +37,17 @@ android {
         buildConfigField("String", "AWS_KEY", getApiKey("AWSKey"))
         buildConfigField("String", "AWS_SECRET_KEY", getApiKey("AWSSecretKey"))
         buildConfigField("String", "AWS_S3_BUCKET_NAME", getApiKey("AWSS3BucketName"))
+
+        val kakaoAppKey: String? = project.findProperty("kakao_app_key") as String?
+            ?: System.getenv("KAKAO_APP_KEY")
+
+        if (kakaoAppKey.isNullOrBlank()) {
+            throw GradleException("Kakao app key is missing. Please add it to local.properties or environment variables.")
+        }
+
+        buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
+
     }
 
     buildTypes {

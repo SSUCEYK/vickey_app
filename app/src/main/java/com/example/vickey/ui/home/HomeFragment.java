@@ -115,24 +115,23 @@ public class HomeFragment extends Fragment {
                 searchView.setQueryHint(getString(R.string.search_query_hint));
 
                 // SearchView 스타일 설정
-                // 배경
-                //searchView.setBackgroundResource(android.R.color.transparent);
-                searchView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black));
-
-                // SearchView 내부의 (기본) EditText 요소에 접근
+                searchView.setBackgroundResource(android.R.color.transparent);
                 int searchTextId = searchView.getContext().getResources()
                         .getIdentifier("android:id/search_src_text", null, null);
                 EditText searchEditText = searchView.findViewById(searchTextId);
+
                 if (searchEditText != null) {
-                    // 텍스트 색상 설정
                     searchEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                    // 힌트 텍스트 색상 설정
                     searchEditText.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.grey_1));
+                    searchEditText.setHighlightColor(ContextCompat.getColor(requireContext(), R.color.white));
+
+                    // 로그로 색상 값 출력
+                    Log.d(TAG, "Text color: " + searchEditText.getCurrentTextColor());
+                    Log.d(TAG, "Hint text color: " + searchEditText.getHintTextColors());
                 }
 
                 // 힌트 텍스트 설정
                 searchView.setQueryHint(getString(R.string.search_query_hint));
-
 
                 // SearchView 리스너 설정
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -332,7 +331,6 @@ public class HomeFragment extends Fragment {
         setCurrentIndicator(0);
     }
 
-
     private void setCurrentIndicator(int position) {
         int childCount = layoutIndicator.getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -340,26 +338,6 @@ public class HomeFragment extends Fragment {
             imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(),
                     i == position ? R.drawable.bg_indicator_active : R.drawable.bg_indicator_inactive));
         }
-    }
-
-    private void setupMenuProvider(View view) {
-        requireActivity().addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.actionbar_menu, menu);
-                MenuItem menuItem = menu.findItem(R.id.search);
-                SearchView searchView = (SearchView) menuItem.getActionView();
-                searchView.setQueryHint(getString(R.string.search_query_hint));
-            }
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                if (menuItem.getItemId() == R.id.search) {
-                    return true;
-                }
-                return false;
-            }
-        }, getViewLifecycleOwner());
     }
 
     // 검색 UI 관련 메서드들

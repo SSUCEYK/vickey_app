@@ -72,10 +72,14 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                 // 로그인 성공
                 if (task.isSuccessful()) {
                     Toast.makeText(LoginWithEmailActivity.this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
-
-                    // 결제 상태 확인
                     String uid = auth.getCurrentUser().getUid();
-                    updateUserDB(uid, email, password);
+                    Log.d(TAG, "loginUser: uid="+ uid);
+
+                    // 사용자 상태 저장
+                    saveLoginSession("email", uid);
+
+                    // DB 저장
+                    updateUserDB(new LoginRequest(uid, email, password));
 
                 } else {
                     // 로그인 실패
@@ -84,71 +88,31 @@ public class LoginWithEmailActivity extends AppCompatActivity {
             });
     }
 
-    private void updateUserDB(String uid, String email, String password){
-        // 로그인 성공 시 DB 업데이트 후
-        // 결제 처리 코드 호출
+    private void saveLoginSession(String loginMethod, String userId) {
+        SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("login_method", loginMethod);
+        editor.putBoolean("isLoginned", true);
+        editor.putString("userId", userId);
+        editor.apply();
+        Log.d(TAG, "saveLoginSession: saved: " + loginMethod + ", " + userId);
+    }
 
-        Log.d(TAG, "updateUserDB/ FirebaseUID=" + uid);
-        LoginRequest loginRequest = new LoginRequest(uid, email, password);
-        Call<LoginResponse> call = apiService.loginWithEmail(loginRequest);
-
-        call.enqueue(new Callback<LoginResponse>() {
+    private void updateUserDB(LoginRequest loginRequest){
+        // 로그인 성공 시 DB 업데이트 후 결제 처리 코드 호출
+        apiService.loginWithEmail(loginRequest).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
                     //로그인(DB 저장) 성공 시 처리
                     LoginResponse loginResponse = response.body();
                     Log.d(TAG, "onResponse: " + loginResponse);
-                    Log.d(TAG, "onResponse: User DB updated: " + uid);
 
-                    // 사용자 상태 저장
-                    SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("login_method", "email");
-                    editor.putBoolean("isLoginned", true);
                     //테스트용
-                    editor.putString("userId", uid); // UID 저장
-                    editor.apply();
+                    loginResponse.setSubscribed(true);
 
                     //DB 저장 이후 결제 처리
-//                    //checkSubscriptionStatus(uid); //중복 호출 제외
-//                    if (loginResponse.isSubscribed()) {
-//                        // 결제 완료 -> 메인 페이지로 이동
-//                        Intent intent = new Intent(LoginWithEmailActivity.this, MainActivity.class);
-//                        startActivity(intent);
-//                    } else {
-//                        // 결제 미완료 -> 구독 선택 화면으로 이동
-//                        Intent intent = new Intent(LoginWithEmailActivity.this, SubscriptionActivity.class);
-//                        startActivity(intent);
-//                    }
-//                    finish();
-                    passSubscription(); //테스트용 결제 제외 (임시)
-                }
-            }
-
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // 네트워크 오류 처리
-            }
-        });
-    }
-
-    private void passSubscription(){
-        // 테스트용 (결제 제외)
-        Intent intent = new Intent(LoginWithEmailActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void checkSubscriptionStatus(String uid) {
-        apiService.getUserStatus(uid).enqueue(new retrofit2.Callback<UserStatus>() {
-            @Override
-            public void onResponse(Call<UserStatus> call, retrofit2.Response<UserStatus> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserStatus userStatus = response.body();
-                    Log.d(TAG, "onResponse: userStatus:"+userStatus.getSubscribed());
-
-                    if (userStatus.isSubscribed()) {
+                    if (loginResponse.isSubscribed()) {
                         // 결제 완료 -> 메인 페이지로 이동
                         Intent intent = new Intent(LoginWithEmailActivity.this, MainActivity.class);
                         startActivity(intent);
@@ -158,18 +122,14 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
 
+                    Log.d(TAG, "onResponse: user.isSubscribed=" + loginResponse.isSubscribed());
                     finish();
-
-                } else {
-                    Toast.makeText(LoginWithEmailActivity.this, "결제 상태 확인 실패", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onResponse: 결제 상태 확인 실패");
                 }
             }
 
             @Override
-            public void onFailure(Call<UserStatus> call, Throwable t) {
-                Toast.makeText(LoginWithEmailActivity.this, "네트워크 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onResponse: 네트워크 오류: " + t.getMessage());
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                // 네트워크 오류 처리
             }
         });
     }

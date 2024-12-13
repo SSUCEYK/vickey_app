@@ -20,7 +20,6 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/black"
             app:menu="@menu/actionbar_menu"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:title="@string/app_name"
             app:titleTextColor="@color/white"
             app:layout_constraintTop_toTopOf="parent"
@@ -72,54 +71,6 @@
             android:layout_marginTop="20dp"
             android:paddingBottom="90dp"
         />
-
-<!--        <TextView-->
-<!--            android:id="@+id/contentList1"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/content_list_name1"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textSize="26sp"-->
-<!--            android:layout_marginTop="20dp"-->
-<!--            android:layout_marginStart="5dp"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/layoutIndicators"-->
-<!--            />-->
-
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/contentRecyclerView1"-->
-<!--            android:nestedScrollingEnabled="false"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/contentList1"-->
-<!--            />-->
-
-
-<!--        <TextView-->
-<!--            android:id="@+id/contentList2"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/content_list_name2"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textSize="26sp"-->
-<!--            android:layout_marginTop="20dp"-->
-<!--            android:layout_marginStart="5dp"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/contentRecyclerView1"-->
-<!--            />-->
-
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/contentRecyclerView2"-->
-<!--            android:nestedScrollingEnabled="false"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/contentList2"-->
-<!--            android:paddingBottom="60dp"-->
-<!--            />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

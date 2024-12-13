@@ -57,7 +57,7 @@ public class LikesEpisodeActivity extends AppCompatActivity {
         String userId = getApplicationContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
                 .getString("userId", null);
         Log.d(TAG, "onCreateView: userId=" + userId);
-        userId = "1"; //테스트용
+//        userId = "1"; //테스트용
 
         loadLikedVideos(userId);
     }

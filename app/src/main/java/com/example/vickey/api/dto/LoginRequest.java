@@ -1,22 +1,22 @@
 package com.example.vickey.api.dto;
 
 public class LoginRequest {
-    String uid;
+    String userId;
     String email;
     String password;
 
-    public LoginRequest(String uid, String email, String password) {
-        this.uid = uid;
+    public LoginRequest(String userId, String email, String password) {
+        this.userId = userId;
         this.email = email;
         this.password = password;
     }
 
-    public String getUid() {
-        return uid;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {

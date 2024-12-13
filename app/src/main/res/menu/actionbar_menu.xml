@@ -5,8 +5,10 @@
     <item
         android:id="@+id/search"
         android:title="Search"
+        app:titleTextColor="@color/white"
+        android:background="@color/black"
         android:icon="@drawable/outline_search_30_white"
         app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
 </menu>

@@ -85,7 +85,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
         userId = prefs.getString("userId", null);
         Log.d(TAG, "onCreateView: userId=" + userId);
-        userId = "1"; //테스트용
+        //userId = "1"; //테스트용
         profile_uid.setText("UID: " + userId);
 
         setUserProfile();
@@ -114,11 +114,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         super.onViewCreated(view, savedInstanceState);
         // 로그인 정보
         boolean isLoginned = prefs.getBoolean("isLoginned", false);
+        Log.d(TAG, "onViewCreated: isLoginned="+isLoginned);
 
         // 로그인 상태에 따른 버튼의 visibility 설정
         if (isLoginned) {
             login_btn.setVisibility(View.GONE);
             logout_btn.setVisibility(View.VISIBLE);
+
+            Log.d(TAG, "onViewCreated: login_method=" + prefs.getString("login_method", "default"));
         }
     }
 
@@ -260,13 +263,28 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
             return;
         }
 
-        profile_username.setText(user.getUsername());
+        String userName = user.getUsername();
+        if (userName == null || userName.isEmpty()){
+            profile_username.setText(R.string.default_user_name);
+        } else {
+            profile_username.setText(userName);
+        }
 
-        Glide.with(requireContext())
-                .load(user.getProfilePictureUrl())
-                .apply(new RequestOptions()
-                        .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
-                .into(profile_image);
+        String userId = user.getUserId();
+        userId = userId.length() > 10 ? userId.substring(0, 10) : userId;
+        profile_uid.setText(userId);
+
+        String profileUrl = user.getProfilePictureUrl();
+        if ((profileUrl == null) || (profileUrl.isEmpty())){
+            user.setProfilePictureUrl(getString(R.string.default_user_profileImg)); // 기본 프로필 이미지 URL 설정
+        }
+        else {
+            Glide.with(requireContext())
+                    .load(profileUrl)
+                    .apply(new RequestOptions()
+                            .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
+                    .into(profile_image);
+        }
     }
 
     private void updateUserProfileThumbnailUI(String url) {
@@ -330,8 +348,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         logout_btn.setVisibility(View.GONE);
 
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("login_method", "");
-        editor.apply();
+        editor.clear();
+
+        // 메인 로그인 화면으로 이동
+        startActivity(new Intent(getContext(), LoginActivity.class));
+        getActivity().finish();
     }
 
     private void makeLogoutToastMsg(boolean success){

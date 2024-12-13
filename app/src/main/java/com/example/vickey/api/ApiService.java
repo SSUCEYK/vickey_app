@@ -5,7 +5,6 @@ import com.example.vickey.api.dto.LikedVideosResponse;
 import com.example.vickey.api.dto.LoginRequest;
 import com.example.vickey.api.dto.LoginResponse;
 import com.example.vickey.api.dto.SignupRequest;
-import com.example.vickey.api.dto.SocialLoginRequest;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.api.models.Like;
 import com.example.vickey.api.models.User;
@@ -84,6 +83,13 @@ public interface ApiService {
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") String userId);
 
 
+    // 소셜 로그인 (카카오/네이버)
+    @POST("/api/auth/kakao-login")
+    Call<LoginResponse> authenticateKakao(@Body String request);
+
+    @POST("/api/auth/naver-login")
+    Call<LoginResponse> getNaverUser(@Body String request);
+
     // User
     // 이메일 로그인
     @POST("api/users/email-login")
@@ -92,10 +98,6 @@ public interface ApiService {
     // 이메일 회원가입
     @POST("api/users/email-signup")
     Call<LoginResponse> signupWithEmail(@Body SignupRequest signupRequest);
-
-    // 소셜 로그인 (카카오/네이버)
-    @POST("api/users/social-login")
-    Call<LoginResponse> socialLogin(@Body SocialLoginRequest socialLoginRequest);
 
     @POST("api/users/register") // Spring 서버의 엔드포인트
     Call<Void> registerUser(@Body User user); // User 객체 전송
@@ -112,6 +114,7 @@ public interface ApiService {
     @Multipart
     @POST("api/users/{userId}/profile-image")
     Call<String> uploadProfileImage(@Path("userId") String userId, @Part MultipartBody.Part file);
+
 }
 
 

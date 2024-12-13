@@ -47,7 +47,7 @@ public class LikesFragment extends Fragment {
         String userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
                 .getString("userId", null);
         Log.d(TAG, "onCreateView: userId=" + userId);
-        userId = "1"; //테스트용
+//        userId = "1"; //테스트용
 
         loadLikedEpisodes(userId);
 
