@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -27,6 +28,7 @@ public class HistoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private HistoryAdapter adapter;
+    private TextView noHistoryMessage;
     private ApiService apiService;
     private final String TAG = "HistoryFragment";
 
@@ -34,6 +36,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+        noHistoryMessage = view.findViewById(R.id.no_watched_list);
 
         recyclerView = view.findViewById(R.id.recyclerView_history);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
@@ -56,20 +59,30 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onResponse(Call<List<CheckWatchedResponse>> call, Response<List<CheckWatchedResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-
                     //videoId, thumbnail, progress
                     List<CheckWatchedResponse> watchedResponses = response.body();
                     Log.d(TAG, "onResponse: watchedResponses: " + watchedResponses);
 
-                    // 어댑터 설정
-                    if (adapter == null) {
-                        adapter = new HistoryAdapter(getContext(), watchedResponses);
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        adapter.updateData(watchedResponses);
+                    if (watchedResponses == null || watchedResponses.isEmpty()) {
+                        showNoHistoryMessage(); // 빈 리스트일 경우 메시지 표시
+                    }
+                    else {
+                        showHistoryList();
+
+                        // 어댑터 설정
+                        if (adapter == null) {
+                            adapter = new HistoryAdapter(getContext(), watchedResponses);
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            adapter.updateData(watchedResponses);
+                        }
                     }
 
                 }
+                else {
+                    showNoHistoryMessage();
+                }
+
             }
 
             @Override
@@ -78,6 +91,16 @@ public class HistoryFragment extends Fragment {
                 Log.e(TAG, "Failed to load history", t);
             }
         });
+    }
+
+    private void showNoHistoryMessage() {
+        noHistoryMessage.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+    }
+
+    private void showHistoryList() {
+        noHistoryMessage.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
     }
 
 }
