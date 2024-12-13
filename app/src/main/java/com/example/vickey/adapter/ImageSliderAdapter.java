@@ -84,6 +84,8 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
             // 애니메이션 시작
             v.startAnimation(scaleAnimation);
 
+            Log.d(TAG, "onBindViewHolder: 점 세 개 버튼 클릭함");
+
             // 딜레이 후 액티비티 이동
             v.postDelayed(() -> {
                 Intent intent = new Intent(context, ContentDetailActivity.class);

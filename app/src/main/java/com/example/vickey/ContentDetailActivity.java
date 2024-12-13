@@ -40,6 +40,7 @@ public class ContentDetailActivity extends AppCompatActivity {
     private Episode currentEpisode;
     private int videoNum;
     private ApiService apiService;
+    private final String TAG = "ContentDetailActivity";
 
 
     @Override
@@ -59,6 +60,8 @@ public class ContentDetailActivity extends AppCompatActivity {
             finish();
         });
         apiService = ApiClient.getApiService(this);
+
+        Log.d(TAG, "onCreate: in");
 
         // Intent에서 전달된 이미지 리소스 ID 받기
         Intent intent = getIntent();
@@ -121,6 +124,11 @@ public class ContentDetailActivity extends AppCompatActivity {
 
         GridLayout gridLayout = findViewById(R.id.episodeGrid);
         gridLayout.setColumnCount(7);
+
+        if (currentEpisode.getVideoUrls() == null || currentEpisode.getVideoUrls().isEmpty()){
+            Log.d(TAG, "createEpisodeButtons: currentEpisode 없음");
+            return;
+        }
 
         int totalEpisodes = currentEpisode.getVideoUrls().size(); // Episode 객체에서 총 회차 수 가져오기
         for (int i = 1; i <= totalEpisodes; i++) {

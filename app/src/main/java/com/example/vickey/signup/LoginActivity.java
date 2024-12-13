@@ -29,7 +29,6 @@ import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.kakao.sdk.auth.model.OAuthToken;
-import com.kakao.sdk.common.KakaoSdk;
 import com.kakao.sdk.common.model.ClientError;
 import com.kakao.sdk.common.model.ClientErrorCause;
 import com.kakao.sdk.user.UserApiClient;
@@ -69,18 +68,17 @@ public class LoginActivity extends AppCompatActivity {
 
 
         // 로그인
-        kakao_login_btn = findViewById(R.id.kakao_login_btn);
+//        kakao_login_btn = findViewById(R.id.kakao_login_btn);
         naver_login_btn = findViewById(R.id.naver_login_btn);
 //        google_login_btn = findViewById(R.id.google_login_btn);
         email_login_btn = findViewById(R.id.email_login_btn);
         sign_up_text = findViewById(R.id.sign_up_text);
 
         apiService = ApiClient.getApiService(getApplicationContext());
-        KakaoSdk.init(this, getString(R.string.kakao_app_key)); // Kakao SDK 초기화
-
-        kakao_login_btn.setOnClickListener(v -> {
-            doKakaoLogin();
-        });
+//        KakaoSdk.init(this, getString(R.string.kakao_app_key)); // Kakao SDK 초기화
+//        kakao_login_btn.setOnClickListener(v -> {
+//            doKakaoLogin();
+//        });
         naver_login_btn.setOnClickListener(v -> {
             doNaverLogin();
         });
@@ -192,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveLoginSession("kakao", user.getUserId());
 
                     //테스트용
-                    user.setSubscribed(true);
+//                    user.setSubscribed(true);
 
                     if (user.isSubscribed()) {
                         // 결제 완료 -> 메인 페이지로 이동
@@ -226,7 +224,6 @@ public class LoginActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
                         String token = NaverIdLoginSDK.INSTANCE.getAccessToken();
-                        Log.e(TAG, "accessToken=" + token);
                         doSigninNaverToken(token);
                         break;
                     case Activity.RESULT_CANCELED:
@@ -375,6 +372,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putBoolean("isLoginned", true);
         editor.putString("userId", userId);
         editor.apply();
+        Log.d(TAG, "saveLoginSession: saved " + userId + ": " + loginMethod);
     }
 
 }

@@ -5,19 +5,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import android.widget.Button;
-
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.vickey.adapter.VideoPagerAdapter;
-
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.models.Episode;
@@ -199,7 +198,16 @@ public class ShortsActivity extends AppCompatActivity {
 
                 @Override
                 public void onPageScrollStateChanged(int state) {
-                    if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    if (state == ViewPager2.SCROLL_STATE_DRAGGING && currentPosition == adapter.getItemCount() - 1) {
+                        // 스크롤 시 현재 페이지가 마지막 영상인지 확인
+                        // 마지막 영상에서 스크롤 시도 시
+                        Toast.makeText(ShortsActivity.this, getString(R.string.last_video), Toast.LENGTH_SHORT).show();
+                        viewPager2.setUserInputEnabled(false); // 스크롤 비활성화
+
+                        // 약간의 지연 후 스크롤 활성화
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> viewPager2.setUserInputEnabled(true), 1000);
+                    }
+                    else if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
                         // 스크롤 시작할 때 현재 영상 일시정지
                         pauseVideoAtPosition(currentPosition);
                     }
@@ -230,6 +238,18 @@ public class ShortsActivity extends AppCompatActivity {
                         player.setPlayWhenReady(true);
                         player.seekTo(0);
                     }
+
+                    // Listener 설정
+                    player.addListener(new Player.Listener() {
+                        @Override
+                        public void onPlaybackStateChanged(int state) {
+                            if (state == Player.STATE_ENDED && position == adapter.getItemCount() - 1) {
+                                // 마지막 영상이 재생 완료됨
+                                Toast.makeText(ShortsActivity.this, getString(R.string.last_video_played), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
                 }
             }
         }, 200); // 200ms 지연

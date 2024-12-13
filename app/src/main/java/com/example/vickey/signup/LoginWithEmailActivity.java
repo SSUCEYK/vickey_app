@@ -109,7 +109,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                     Log.d(TAG, "onResponse: " + loginResponse);
 
                     //테스트용
-                    loginResponse.setSubscribed(true);
+//                    loginResponse.setSubscribed(true);
 
                     //DB 저장 이후 결제 처리
                     if (loginResponse.isSubscribed()) {
