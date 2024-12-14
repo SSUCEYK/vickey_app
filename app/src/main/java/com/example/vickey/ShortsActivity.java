@@ -44,6 +44,7 @@ public class ShortsActivity extends AppCompatActivity {
     private BottomSheetDialog episodeBottomSheet;
     private Episode currentEpisode;
     private ApiService apiService;
+    private String userId;
 
 
     @Override
@@ -62,9 +63,8 @@ public class ShortsActivity extends AppCompatActivity {
             return;
         }
 
-        // API 호출하여 데이터 가져오기
         apiService = ApiClient.getApiService(this);
-        Log.d(TAG, "onCreate: episodeId=" + episodeId);
+        userId = getSharedPreferences("user_session", Context.MODE_PRIVATE).getString("userId", null);
 
         apiService.contentInfoEpisode(episodeId).enqueue(new Callback<EpisodeDTO>() {
             @Override
@@ -96,7 +96,6 @@ public class ShortsActivity extends AppCompatActivity {
     }
 
     private void updateWatchedStatus(int position) {
-        String userId = getSharedPreferences("user_session", Context.MODE_PRIVATE).getString("userId", null);
         Long videoId = adapter.getVideoId(position);
         apiService.markVideoAsWatched(userId, videoId).enqueue(new Callback<Void>() {
             @Override
@@ -118,41 +117,78 @@ public class ShortsActivity extends AppCompatActivity {
         });
     }
 
+    private void checkAndSetLikeStatus(int position) {
+        Long videoId = adapter.getVideoId(position);
+        apiService.isLikedByUser(videoId, userId).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean isLiked = response.body();
+                    updateLikeButtonUI(isLiked); // 좋아요 버튼 상태 업데이트
+                } else {
+                    Log.e(TAG, "Failed to fetch like status: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Log.e(TAG, "Error fetching like status", t);
+            }
+        });
+    }
+
+    private void updateLikeButtonUI(boolean isLiked) {
+        this.isLiked = isLiked; // 전역 변수 업데이트
+        likeButton.setImageResource(isLiked ? R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+    }
+
     private void updateLikeStatus(int position) {
-        String userId = getSharedPreferences("user_session", Context.MODE_PRIVATE).getString("userId", null);
+
+        // 현재 비디오 ID 가져오기
         Long videoId = adapter.getVideoId(position);
 
         if (isLiked) {
-            // 좋아요 추가
             apiService.likeVideo(userId, videoId).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        Log.d(TAG, "Like status updated for videoId: " + videoId);
+                    if (!response.isSuccessful()) {
+                        Log.e(TAG, "Failed to like video: " + response.code());
+                        updateLikeButtonUI(false); // 실패 시 원래 상태로 복구
+                        sendLikeBroadcast(videoId); // 브로드캐스트 전송
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    Log.e(TAG, "Failed to update like status", t);
+                    Log.e(TAG, "Error liking video", t);
+                    updateLikeButtonUI(false);
                 }
             });
         } else {
-            // 좋아요 취소
             apiService.unlikeVideo(userId, videoId).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        Log.d(TAG, "Unlike status updated for videoId: " + videoId);
+                    if (!response.isSuccessful()) {
+                        Log.e(TAG, "Failed to unlike video: " + response.code());
+                        updateLikeButtonUI(true); // 실패 시 원래 상태로 복구
+                        sendLikeBroadcast(videoId); // 브로드캐스트 전송
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    Log.e(TAG, "Failed to update unlike status", t);
+                    Log.e(TAG, "Error unliking video", t);
+                    updateLikeButtonUI(true);
                 }
             });
         }
+    }
+
+    private void sendLikeBroadcast(Long videoId) {
+        Intent intent = new Intent("LIKE_STATUS_UPDATED");
+        intent.putExtra("videoId", videoId);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Log.d(TAG, "Broadcast sent for videoId: " + videoId);
     }
 
     private void initializeButtons() {
@@ -163,9 +199,9 @@ public class ShortsActivity extends AppCompatActivity {
         // 좋아요 버튼
         likeButton = findViewById(R.id.shorts_likeButton);
         likeButton.setOnClickListener(v -> {
-            isLiked = !isLiked;
-            likeButton.setImageResource(isLiked ?
-                    R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+            isLiked = !isLiked; // 현재 좋아요 상태 토글
+
+            updateLikeButtonUI(isLiked); // UI 즉시 업데이트
 
             // 현재 페이지의 좋아요 상태 업데이트
             updateLikeStatus(viewPager2.getCurrentItem());
@@ -250,6 +286,9 @@ public class ShortsActivity extends AppCompatActivity {
             // 시청 기록 업데이트 **현재 페이지**
             updateWatchedStatus(startPosition);
 
+            // 좋아요 상태 확인 **현재 페이지**
+            checkAndSetLikeStatus(startPosition);
+
             // 초기 재생을 위한 약간의 지연 추가
             viewPager2.post(() -> {
                 playVideoAtPosition(startPosition);  // 시작 위치의 영상 강제 재생
@@ -270,7 +309,12 @@ public class ShortsActivity extends AppCompatActivity {
 
                     // 새 영상 재생
                     playVideoAtPosition(position);
+
+                    // 좋아요 상태 확인
+                    checkAndSetLikeStatus(position);
+
                     currentPosition = position;
+
                 }
 
                 @Override

@@ -26,6 +26,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     private Context context;
     private List<CheckWatchedResponse> watchedResponses;
+    private OnItemLongClickListener longClickListener;
+
+    public interface OnItemLongClickListener {
+        void onItemLongClick(CheckWatchedResponse item, int position);
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.longClickListener = listener;
+    }
 
     public HistoryAdapter(Context context, List<CheckWatchedResponse> watchedResponses) {
         this.context = context;
@@ -68,6 +77,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
             context.startActivity(intent);
         });
 
+        holder.itemView.setOnLongClickListener(v -> {
+            if (longClickListener != null) {
+                longClickListener.onItemLongClick(cw, position);
+            }
+            return true;
+        });
+
     }
 
     @Override
@@ -99,7 +115,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateData(List<CheckWatchedResponse> newData) {
-        this.watchedResponses = newData;
-        notifyDataSetChanged();
+        if (!watchedResponses.equals(newData)) { // 데이터 변경 여부 확인
+            watchedResponses.clear();
+            watchedResponses.addAll(newData);
+            notifyDataSetChanged();
+        }
     }
+
+    public void removeItem(int position) {
+        watchedResponses.remove(position);
+        notifyItemRemoved(position);
+    }
+
 }

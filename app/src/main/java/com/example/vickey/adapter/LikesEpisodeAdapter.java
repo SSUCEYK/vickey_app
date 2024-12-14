@@ -18,6 +18,7 @@ import com.example.vickey.R;
 import com.example.vickey.ShortsActivity;
 import com.example.vickey.api.dto.LikedVideosResponse;
 import com.example.vickey.api.models.Episode;
+import com.example.vickey.ui.mylist.LikesEpisodeActivity;
 
 import java.util.List;
 
@@ -26,13 +27,15 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
     private List<LikedVideosResponse> likedVideosResponses;
     private Episode episode;
     private Context context;
+    private LikesEpisodeActivity activity;
     private final String TAG = "LikesEpisodeAdapter";
 
 
-    public LikesEpisodeAdapter(List<LikedVideosResponse> likedVideosResponses, Episode episode, Context context) {
+    public LikesEpisodeAdapter(List<LikedVideosResponse> likedVideosResponses, Episode episode, LikesEpisodeActivity activity) {
         this.likedVideosResponses = likedVideosResponses;
         this.episode = episode;
-        this.context = context;
+        this.activity = activity;
+        this.context = activity.getApplicationContext();
     }
 
     @NonNull
@@ -63,7 +66,8 @@ public class LikesEpisodeAdapter extends RecyclerView.Adapter<LikesEpisodeAdapte
             Intent intent = new Intent(context, ShortsActivity.class);
             intent.putExtra("episodeId", episode.getEpisodeId());
             intent.putExtra("videoNum", videoNum);
-            context.startActivity(intent);
+            activity.startActivity(intent);
+            activity.finish(); // LikesEpisodeActivity 종료
         });
     }
 

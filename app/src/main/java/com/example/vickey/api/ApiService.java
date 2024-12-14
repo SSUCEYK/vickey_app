@@ -88,11 +88,17 @@ public interface ApiService {
     @POST("api/history/user/{userId}/videos/{videoId}")
     Call<Void> markVideoAsWatched(@Path("userId") String userId, @Path("videoId") Long videoId);
 
-    @POST("/api/likes/user/{userId}/videos/{videoId}/like")
+    @POST("api/likes/user/{userId}/videos/{videoId}/like")
     Call<Void> likeVideo(@Path("userId") String userId, @Path("videoId") Long videoId);
 
-    @DELETE("/api/likes/user/{userId}/videos/{videoId}/like")
+    @DELETE("api/likes/user/{userId}/videos/{videoId}/like")
     Call<Void> unlikeVideo(@Path("userId") String userId, @Path("videoId") Long videoId);
+
+    @GET("api/likes/videos/{videoId}/like-status")
+    Call<Boolean> isLikedByUser(@Path("videoId") Long videoId, @Query("userId") String userId);
+
+    @DELETE("api/history/user/{userId}/videos/{videoId}")
+    Call<Void> markVideoAsUnwatched(@Path("userId") String userId, @Path("videoId") Long videoId);
 
 
 

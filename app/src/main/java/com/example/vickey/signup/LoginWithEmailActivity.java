@@ -94,8 +94,9 @@ public class LoginWithEmailActivity extends AppCompatActivity {
         editor.putString("login_method", loginMethod);
         editor.putBoolean("isLoginned", true);
         editor.putString("userId", userId);
+        editor.putLong("last_login_time", System.currentTimeMillis());
         editor.apply();
-        Log.d(TAG, "saveLoginSession: saved: " + loginMethod + ", " + userId);
+        Log.d(TAG, "saveLoginSession: saved " + userId + ": " + loginMethod);
     }
 
     private void updateUserDB(LoginRequest loginRequest){

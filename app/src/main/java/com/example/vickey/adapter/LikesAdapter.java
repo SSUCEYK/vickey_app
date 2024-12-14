@@ -3,7 +3,6 @@ package com.example.vickey.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.vickey.ContentDetailActivity;
-import com.example.vickey.ui.mylist.LikesEpisodeActivity;
 import com.example.vickey.R;
 import com.example.vickey.api.models.Episode;
+import com.example.vickey.ui.mylist.LikesEpisodeActivity;
 
 import java.util.List;
 
@@ -32,6 +31,15 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
     public LikesAdapter(Context context, List<Episode> likedEpisodes) {
         this.context = context;
         this.likedEpisodes = likedEpisodes;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateData(List<Episode> newEpisodes) {
+        if (!likedEpisodes.equals(newEpisodes)) { // 데이터 변경 여부 확인
+            likedEpisodes.clear();
+            likedEpisodes.addAll(newEpisodes);
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull

@@ -44,9 +44,9 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Button kakao_login_btn;
+    //    private Button google_login_btn;
+//private Button kakao_login_btn;
     private Button naver_login_btn;
-//    private Button google_login_btn;
     private Button email_login_btn;
     private TextView sign_up_text;
 
@@ -66,15 +66,28 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
+        apiService = ApiClient.getApiService(getApplicationContext());
+        setupLoginButtons();
 
-        // 로그인
+
+        if (isSessionExpired()) {
+            // 세션 만료 -> 로그인 화면 유지
+            Log.d(TAG, "세션이 만료되었습니다.");
+        } else if (isUserLoggedIn()) {
+            // 세션 유효 -> 자동 로그인 처리
+            handleAutoLogin();
+            return; // 자동 로그인 성공 시 LoginActivity 종료
+        }
+
+    }
+
+    private void setupLoginButtons(){
 //        kakao_login_btn = findViewById(R.id.kakao_login_btn);
-        naver_login_btn = findViewById(R.id.naver_login_btn);
 //        google_login_btn = findViewById(R.id.google_login_btn);
+        naver_login_btn = findViewById(R.id.naver_login_btn);
         email_login_btn = findViewById(R.id.email_login_btn);
         sign_up_text = findViewById(R.id.sign_up_text);
 
-        apiService = ApiClient.getApiService(getApplicationContext());
 //        KakaoSdk.init(this, getString(R.string.kakao_app_key)); // Kakao SDK 초기화
 //        kakao_login_btn.setOnClickListener(v -> {
 //            doKakaoLogin();
@@ -91,9 +104,65 @@ public class LoginActivity extends AppCompatActivity {
         sign_up_text.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignupWithEmailActivity.class));
         });
-
     }
 
+    // 자동 로그인 여부 확인
+    private boolean isUserLoggedIn() {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        return prefs.getBoolean("isLoginned", false); // 로그인 상태 확인
+    }
+
+    // 세션 만료 여부 확인
+    private boolean isSessionExpired() {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        long lastLoginTime = prefs.getLong("last_login_time", 0);
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastLoginTime > 24 * 60 * 60 * 1000; // 24시간 기준
+    }
+
+    // 자동 로그인 처리
+    private void handleAutoLogin() {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String loginMethod = prefs.getString("login_method", null);
+        String userId = prefs.getString("userId", null);
+
+        if (loginMethod == null || userId == null) {
+            Log.e(TAG, "자동 로그인 실패: 저장된 세션 없음");
+            return;
+        }
+
+        // 로그인 상태에 따라 처리
+        Log.d(TAG, "자동 로그인 성공: " + loginMethod + ", " + userId);
+
+        // 서버와의 토큰 검증 로직 (추가 가능)
+//        verifySessionWithServer(userId, loginMethod);
+    }
+
+//    // 서버에 세션 검증 요청
+//    private void verifySessionWithServer(String userId, String loginMethod) {
+//        apiService.verifySession(userId, loginMethod).enqueue(new Callback<LoginResponse>() {
+//            @Override
+//            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    LoginResponse user = response.body();
+//
+//                    if (user.isSubscribed()) {
+//                        startActivity(new Intent(LoginActivity.this, MainActivity.class)); // 메인 페이지로 이동
+//                    } else {
+//                        startActivity(new Intent(LoginActivity.this, SubscriptionActivity.class)); // 구독 페이지로 이동
+//                    }
+//                    finish(); // LoginActivity 종료
+//                } else {
+//                    Log.e(TAG, "서버 세션 검증 실패: " + response.message());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<LoginResponse> call, Throwable t) {
+//                Log.e(TAG, "서버 오류: " + t.getMessage());
+//            }
+//        });
+//    }
 
     // 언어 초기화
     private void setAppLocale() {
@@ -371,6 +440,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("login_method", loginMethod);
         editor.putBoolean("isLoginned", true);
         editor.putString("userId", userId);
+        editor.putLong("last_login_time", System.currentTimeMillis());
         editor.apply();
         Log.d(TAG, "saveLoginSession: saved " + userId + ": " + loginMethod);
     }
