@@ -118,7 +118,7 @@ public class HomeFragment extends Fragment {
 
                 // 힌트 텍스트 설정
                 searchView.setQueryHint(getString(R.string.search_query_hint));
-                searchView.setBackgroundColor(R.color.black_1);
+                searchView.setBackgroundColor(Color.LTGRAY);
 
                 // SearchView 내부의 EditText 색상을 초기화 시점에 설정
                 searchView.post(() -> applySearchTextColor(searchView));
@@ -249,7 +249,8 @@ public class HomeFragment extends Fragment {
         // 확인된 클래스에 접근
         if (searchEditText instanceof androidx.appcompat.widget.SearchView.SearchAutoComplete) {
             searchEditText.setTextColor(Color.WHITE); // 텍스트 색상
-            searchEditText.setBackgroundColor(Color.BLACK); // 배경 색상
+//            searchEditText.setBackgroundColor(Color.BLACK); // 배경 색상
+            searchEditText.setBackgroundColor(Color.TRANSPARENT);
             searchEditText.setHintTextColor(Color.LTGRAY); // 힌트 색상
 
             // 디버깅 로그

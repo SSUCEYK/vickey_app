@@ -15,6 +15,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -111,9 +112,12 @@ public class WebViewActivity extends AppCompatActivity {
 
             if (url.contains("/success") || url.contains("kakao/success")) {
                 isPaymentCompleted = true;
-                if (url.contains("kakao/success")) {
-                    navigateToMainActivity();
-                }
+                Toast.makeText(WebViewActivity.this, R.string.pay_success, Toast.LENGTH_SHORT).show();
+                navigateToMainActivity();
+            }
+            else if (url.contains("/fail")) {
+                Toast.makeText(WebViewActivity.this, R.string.pay_fail, Toast.LENGTH_SHORT).show();
+                navigateToSubscriptionActivity(); // 결제 실패 시 SubscriptionActivity로 리다이렉트
             }
         }
     }
@@ -165,6 +169,15 @@ public class WebViewActivity extends AppCompatActivity {
     private void navigateToMainActivity() {
         if (!isFinishing()) {
             Intent intent = new Intent(WebViewActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    private void navigateToSubscriptionActivity() {
+        if (!isFinishing()) {
+            Intent intent = new Intent(WebViewActivity.this, SubscriptionActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
