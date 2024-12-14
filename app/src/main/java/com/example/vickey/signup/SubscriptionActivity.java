@@ -118,7 +118,7 @@ public class SubscriptionActivity extends AppCompatActivity {
                 if (selectedSubscription != null) {
 
                     Intent intent = new Intent(SubscriptionActivity.this, WebViewActivity.class);
-                    intent.putExtra("url", getString(R.string.local_url)+"pay");
+                    intent.putExtra("url", getString(R.string.api_base_url)+"pay");
                     intent.putExtra("subscriptionType", selectedSubscription.name());
 
                     startActivity(intent);

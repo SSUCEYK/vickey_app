@@ -39,7 +39,7 @@
         <activity android:name=".ShortsActivity"/>
         <activity android:name=".ui.mylist.LikesEpisodeActivity"/>
         <activity android:name=".ContentDetailActivity"/>
-        <activity android:name=".signup.SubscriptionActivity" />
+        <activity android:name=".signup.SubscriptionActivity" android:exported="true"/>
         <activity android:name=".signup.WebViewActivity"/>
 
         <!-- 카카오 리다이렉트 URI 처리 -->

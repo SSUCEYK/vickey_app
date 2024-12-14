@@ -59,10 +59,10 @@ public class WebViewActivity extends AppCompatActivity {
 
     private void loadPaymentUrl() {
         SharedPreferences sharedPreferences = getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        String uid = sharedPreferences.getString("uid", null);
+        String uid = sharedPreferences.getString("userId", null);
         String subscriptionType = getIntent().getStringExtra("subscriptionType");
 
-        String url = getString(R.string.local_url)+"pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
+        String url = getString(R.string.api_base_url)+"pay?uid=" + uid + "&subscriptionType=" + subscriptionType;
         Log.d(TAG, "Loading URL: " + url);
         webView.loadUrl(url);
     }

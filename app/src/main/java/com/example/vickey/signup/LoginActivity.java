@@ -115,8 +115,9 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isSessionExpired() {
         SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
         long lastLoginTime = prefs.getLong("last_login_time", 0);
+        boolean isLoginned = prefs.getBoolean("isLoginned", false);
         long currentTime = System.currentTimeMillis();
-        return currentTime - lastLoginTime > 24 * 60 * 60 * 1000; // 24시간 기준
+        return isLoginned && (currentTime - lastLoginTime > 24 * 60 * 60 * 1000); // 24시간 기준
     }
 
     // 자동 로그인 처리
@@ -135,6 +136,9 @@ public class LoginActivity extends AppCompatActivity {
         
         // 구독 체크
         verifySessionWithServer(userId);
+
+        Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
+
     }
 
     // 서버에 세션 검증 요청

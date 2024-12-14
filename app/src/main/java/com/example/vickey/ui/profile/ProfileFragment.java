@@ -360,7 +360,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         logout_btn.setVisibility(View.GONE);
 
         SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
+        editor.putBoolean("isLoginned", false);
+        editor.putLong("last_login_time", System.currentTimeMillis());
+        editor.apply();
 
         // 메인 로그인 화면으로 이동
         startActivity(new Intent(getContext(), LoginActivity.class));
