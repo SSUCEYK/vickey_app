@@ -19,6 +19,7 @@ import com.example.vickey.ShortsActivity;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.imageview.ShapeableImageView;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHolder> {
@@ -109,6 +110,7 @@ public class ChildAdapter extends RecyclerView.Adapter<ChildAdapter.NestedViewHo
                 intent.putExtra("castList", episode.getCastList());
                 intent.putExtra("description", episode.getDescription());
                 intent.putExtra("releasedDate", episode.getReleasedDate());
+                intent.putExtra("videoUrls", (Serializable) episode.getVideoUrls());
                 holder.itemView.getContext().startActivity(intent);
             }, 50); // 후에 실행
         });

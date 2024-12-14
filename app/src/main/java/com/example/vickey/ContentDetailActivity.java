@@ -62,8 +62,6 @@ public class ContentDetailActivity extends AppCompatActivity {
         });
         apiService = ApiClient.getApiService(this);
 
-        Log.d(TAG, "onCreate: in");
-
         // Intent에서 전달된 이미지 리소스 ID 받기
         Intent intent = getIntent();
         long episodeId = intent.getLongExtra("episodeId", -1L); // (-1: 존재하지 않는 ID)
@@ -74,6 +72,7 @@ public class ContentDetailActivity extends AppCompatActivity {
         String releasedDate = intent.getStringExtra("releasedDate");
         String castList = intent.getStringExtra("castList");
         List<String> videoUrls = intent.getStringArrayListExtra("videoUrls");
+
         currentEpisode = new Episode(episodeId, title, thumbnailUrl, episodeCount, description, releasedDate, castList, videoUrls);
         videoNum = getIntent().getIntExtra("videoNum", -1); // 특정 회차가 지정되지 않으면 -1
 
@@ -82,6 +81,11 @@ public class ContentDetailActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        Log.d(TAG, "onCreate: Episode = " + episodeId + ", "
+                + title + ", " + thumbnailUrl + ", " + episodeCount + ", "
+                + description + ", " + releasedDate + ", " + castList + ", "
+        + videoUrls);
 
         updateUI(currentEpisode);
         setupBottomSheet();
@@ -108,6 +112,7 @@ public class ContentDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<EpisodeDTO> call, Response<EpisodeDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "API Response: " + response.body().toString());
                     EpisodeDTO episodeDTO = response.body();
                     updateUI(episodeDTO.getEpisode());
                 }

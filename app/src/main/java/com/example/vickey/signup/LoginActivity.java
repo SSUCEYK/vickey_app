@@ -68,8 +68,7 @@ public class LoginActivity extends AppCompatActivity {
 
         apiService = ApiClient.getApiService(getApplicationContext());
         setupLoginButtons();
-
-
+        
         if (isSessionExpired()) {
             // 세션 만료 -> 로그인 화면 유지
             Log.d(TAG, "세션이 만료되었습니다.");
@@ -133,36 +132,39 @@ public class LoginActivity extends AppCompatActivity {
 
         // 로그인 상태에 따라 처리
         Log.d(TAG, "자동 로그인 성공: " + loginMethod + ", " + userId);
-
-        // 서버와의 토큰 검증 로직 (추가 가능)
-//        verifySessionWithServer(userId, loginMethod);
+        
+        // 구독 체크
+        verifySessionWithServer(userId);
     }
 
-//    // 서버에 세션 검증 요청
-//    private void verifySessionWithServer(String userId, String loginMethod) {
-//        apiService.verifySession(userId, loginMethod).enqueue(new Callback<LoginResponse>() {
-//            @Override
-//            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    LoginResponse user = response.body();
-//
-//                    if (user.isSubscribed()) {
-//                        startActivity(new Intent(LoginActivity.this, MainActivity.class)); // 메인 페이지로 이동
-//                    } else {
-//                        startActivity(new Intent(LoginActivity.this, SubscriptionActivity.class)); // 구독 페이지로 이동
-//                    }
-//                    finish(); // LoginActivity 종료
-//                } else {
-//                    Log.e(TAG, "서버 세션 검증 실패: " + response.message());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<LoginResponse> call, Throwable t) {
-//                Log.e(TAG, "서버 오류: " + t.getMessage());
-//            }
-//        });
-//    }
+    // 서버에 세션 검증 요청
+    private void verifySessionWithServer(String userId) {
+        apiService.getUserStatus(userId).enqueue(new Callback<UserStatus>() {
+            @Override
+            public void onResponse(Call<UserStatus> call, Response<UserStatus> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserStatus user = response.body();
+
+                    // 로그인 상태에 따라 처리
+                    Log.d(TAG, "자동 로그인 - 구독 상태 확인 완료: " + userId);
+
+                    if (user.isSubscribed()) {
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class)); // 메인 페이지로 이동
+                    } else {
+                        startActivity(new Intent(LoginActivity.this, SubscriptionActivity.class)); // 구독 페이지로 이동
+                    }
+                    finish(); // LoginActivity 종료
+                } else {
+                    Log.e(TAG, "서버 세션 검증 실패: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserStatus> call, Throwable t) {
+                Log.e(TAG, "서버 오류: " + t.getMessage());
+            }
+        });
+    }
 
     // 언어 초기화
     private void setAppLocale() {

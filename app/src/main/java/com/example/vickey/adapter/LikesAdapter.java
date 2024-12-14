@@ -20,6 +20,7 @@ import com.example.vickey.R;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.ui.mylist.LikesEpisodeActivity;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder> {
@@ -100,6 +101,7 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
             intent.putExtra("castList", likedEpisode.getCastList());
             intent.putExtra("description", likedEpisode.getDescription());
             intent.putExtra("releasedDate", likedEpisode.getReleasedDate());
+            intent.putExtra("videoUrls", (Serializable) likedEpisode.getVideoUrls());
 
             context.startActivity(intent);
         });

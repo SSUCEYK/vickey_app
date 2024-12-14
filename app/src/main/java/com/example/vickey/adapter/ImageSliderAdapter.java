@@ -25,6 +25,7 @@ import com.example.vickey.R;
 import com.example.vickey.ShortsActivity;
 import com.example.vickey.api.models.Episode;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.MyViewHolder> {
@@ -96,6 +97,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                 intent.putExtra("castList", episode.getCastList());
                 intent.putExtra("description", episode.getDescription());
                 intent.putExtra("releasedDate", episode.getReleasedDate());
+                intent.putExtra("videoUrls", (Serializable) episode.getVideoUrls());
 
                 context.startActivity(intent);
             }, 50); // 후에 실행
