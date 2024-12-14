@@ -67,8 +67,9 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         apiService = ApiClient.getApiService(getApplicationContext());
+
         setupLoginButtons();
-        
+
         if (isSessionExpired()) {
             // 세션 만료 -> 로그인 화면 유지
             Log.d(TAG, "세션이 만료되었습니다.");
@@ -137,8 +138,6 @@ public class LoginActivity extends AppCompatActivity {
         // 구독 체크
         verifySessionWithServer(userId);
 
-        Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
-
     }
 
     // 서버에 세션 검증 요청
@@ -153,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d(TAG, "자동 로그인 - 구독 상태 확인 완료: " + userId);
 
                     if (user.isSubscribed()) {
+                        Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class)); // 메인 페이지로 이동
                     } else {
                         startActivity(new Intent(LoginActivity.this, SubscriptionActivity.class)); // 구독 페이지로 이동
