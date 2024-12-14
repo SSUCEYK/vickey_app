@@ -260,7 +260,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveLoginSession("naver", loginResponse.getUserId());
 
                     //테스트용
-//                    loginResponse.setSubscribed(true);
+                    loginResponse.setSubscribed(true);
 
                     //DB 저장 이후 결제 처리
                     if (loginResponse.isSubscribed()) {

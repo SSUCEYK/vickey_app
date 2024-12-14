@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.media3.common.MediaItem;
@@ -16,8 +15,8 @@ import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.vickey.R;
 
+import com.example.vickey.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +24,15 @@ import java.util.List;
 
 public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.VideoViewHolder> {
     private List<String> videoURLs; // CDN URL 리스트
+    private List<Long> videoIds; // 각 URL에 해당하는 비디오 ID
     private Context context;
     private List<ExoPlayer> players;
 
 
-    public VideoPagerAdapter(Context context, List<String> videoURLs) {
+    public VideoPagerAdapter(Context context, List<String> videoURLs, List<Long> videoIds) {
         this.context = context;
         this.videoURLs = (videoURLs != null) ? videoURLs : new ArrayList<>();
+        this.videoIds = (videoIds != null) ? videoIds : new ArrayList<>();
         this.players = new ArrayList<>();
     }
 
@@ -103,6 +104,14 @@ public class VideoPagerAdapter extends RecyclerView.Adapter<VideoPagerAdapter.Vi
             player.release();
         }
         players.clear();
+    }
+
+    // position에 해당하는 비디오 ID 반환
+    public Long getVideoId(int position) {
+        if (position >= 0 && position < videoIds.size()) {
+            return videoIds.get(position);
+        }
+        return null;
     }
 
     public static class VideoViewHolder extends RecyclerView.ViewHolder {

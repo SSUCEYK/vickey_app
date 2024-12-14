@@ -17,6 +17,7 @@ import androidx.core.widget.NestedScrollView;
 import com.bumptech.glide.Glide;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -103,17 +104,17 @@ public class ContentDetailActivity extends AppCompatActivity {
     }
 
     private void loadEpisodeData(long episodeId){
-        apiService.contentInfoEpisodes(episodeId).enqueue(new Callback<Episode>() {
+        apiService.contentInfoEpisode(episodeId).enqueue(new Callback<EpisodeDTO>() {
             @Override
-            public void onResponse(Call<Episode> call, Response<Episode> response) {
+            public void onResponse(Call<EpisodeDTO> call, Response<EpisodeDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Episode episode = response.body();
-                    updateUI(episode);
+                    EpisodeDTO episodeDTO = response.body();
+                    updateUI(episodeDTO.getEpisode());
                 }
             }
 
             @Override
-            public void onFailure(Call<Episode> call, Throwable t) {
+            public void onFailure(Call<EpisodeDTO> call, Throwable t) {
                 Log.e("API Error", "Failed to get episodes");
             }
         });

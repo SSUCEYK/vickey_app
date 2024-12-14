@@ -35,6 +35,7 @@ import com.example.vickey.adapter.ParentAdapter;
 import com.example.vickey.adapter.SearchAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.models.Episode;
 import com.example.vickey.databinding.FragmentHomeBinding;
 
@@ -60,7 +61,7 @@ public class HomeFragment extends Fragment {
     private SearchAdapter searchAdapter; // 그에 해당하는 어댑터
 
     private final int sliderSize = 5;
-    private final int contentsListSize = 10;
+    private final int contentsListSize = 6;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -423,18 +424,25 @@ public class HomeFragment extends Fragment {
 
         // API 호출 및 결과 처리
         ApiService apiService = ApiClient.getApiService(requireContext());
-        apiService.searchEpisodes(query).enqueue(new Callback<List<Episode>>() {
+        apiService.searchEpisodes(query).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful() && isAdded()) {
-                    List<Episode> episodes = response.body();
+
+                    List<EpisodeDTO> episodeDTOs = response.body();
+
+                    List<Episode> episodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        episodes.add(dto.getEpisode());
+                    }
+
                     // 검색 결과를 RecyclerView에 표시
                     updateSearchResults(episodes);
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 if (isAdded()) {
                     Log.e("API_ERROR", "API 호출 실패", t);  // 구체적인 에러 로깅
                     String errorMessage = getString(R.string.search_error) +": " + t.getMessage();

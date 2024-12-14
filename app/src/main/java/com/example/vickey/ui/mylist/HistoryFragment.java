@@ -1,6 +1,9 @@
 package com.example.vickey.ui.mylist;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,11 +12,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.vickey.adapter.HistoryAdapter;
 import com.example.vickey.R;
+import com.example.vickey.adapter.HistoryAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
 import com.example.vickey.api.dto.CheckWatchedResponse;
@@ -32,6 +36,37 @@ public class HistoryFragment extends Fragment {
     private ApiService apiService;
     private final String TAG = "HistoryFragment";
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // 브로드캐스트 리시버 등록
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(watchedStatusReceiver,
+                new IntentFilter("WATCHED_STATUS_UPDATED"));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // 브로드캐스트 리시버 해제
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(watchedStatusReceiver);
+    }
+
+    private final BroadcastReceiver watchedStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && "WATCHED_STATUS_UPDATED".equals(intent.getAction())) {
+                String userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                        .getString("userId", null);
+
+                // 시청 기록 다시 로드
+                loadUserHistory(userId);
+            }
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,13 +76,14 @@ public class HistoryFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView_history);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
+        // 싱글톤 ApiService 사용
+        apiService = ApiClient.getApiService(requireContext()); 
 
         // SharedPreferences에서 userId 가져오기
         String userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
                 .getString("userId", null);
-        Log.d(TAG, "onCreateView: userId=" + userId);
-//        userId = "1"; //테스트용
+        
+        // 시청 기록 로드
         loadUserHistory(userId);
 
         return view;

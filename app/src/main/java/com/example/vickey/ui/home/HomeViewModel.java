@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.models.Episode;
 
 import java.util.ArrayList;
@@ -48,17 +49,24 @@ public class HomeViewModel extends ViewModel {
             return; // 데이터가 이미 로드되었다면 API 호출을 건너뜀
         }
 
-        apiService.getRandomEpisodes(n).enqueue(new Callback<List<Episode>>() {
+        apiService.getRandomEpisodes(n).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    sliderEpisodes.setValue(response.body());
+                    List<EpisodeDTO> episodeDTOs = response.body();
+
+                    List<Episode> episodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        episodes.add(dto.getEpisode());
+                    }
+
+                    sliderEpisodes.setValue(episodes);
                     Log.d(TAG, "loadSliderEpisodes: loadSliderEpisodes success");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 sliderEpisodes.setValue(null);
                 Log.d(TAG, "loadSliderEpisodes: loadSliderEpisodes fail");
             }
@@ -67,19 +75,26 @@ public class HomeViewModel extends ViewModel {
 
     // 랜덤 에피소드 데이터를 ContentItem에 추가
     private void fetchEpisodesForContentItem(String name, int n, List<ContentItem> items) {
-        apiService.getRandomEpisodes(n).enqueue(new Callback<List<Episode>>() {
+        apiService.getRandomEpisodes(n).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "fetchEpisodesForContentItem: 랜덤 에피소드 성공 - " + response.body().size());
 
-                    items.add(new ContentItem(name, response.body()));
+                    List<EpisodeDTO> episodeDTOs = response.body();
+
+                    List<Episode> episodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        episodes.add(dto.getEpisode());
+                    }
+
+                    items.add(new ContentItem(name, episodes));
                     contentItems.setValue(items); // 변경된 리스트를 LiveData에 설정
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 Log.e(TAG, "fetchEpisodesForContentItem: 랜덤 에피소드 실패", t);
             }
         });
@@ -87,19 +102,26 @@ public class HomeViewModel extends ViewModel {
 
     // 좋아요 순 에피소드 데이터를 ContentItem에 추가
     private void fetchLikedEpisodesForContentItem(String name, int n, List<ContentItem> items) {
-        apiService.getTopNLikedEpisodes(n).enqueue(new Callback<List<Episode>>() {
+        apiService.getTopNLikedEpisodes(n).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "fetchLikedEpisodesForContentItem: 좋아요 순 에피소드 성공 - " + response.body().size());
 
-                    items.add(new ContentItem(name, response.body()));
+                    List<EpisodeDTO> episodeDTOs = response.body();
+
+                    List<Episode> episodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        episodes.add(dto.getEpisode());
+                    }
+
+                    items.add(new ContentItem(name, episodes));
                     contentItems.setValue(items); // 변경된 리스트를 LiveData에 설정
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 Log.e(TAG, "fetchLikedEpisodesForContentItem: 좋아요 순 에피소드 실패", t);
             }
         });
@@ -107,19 +129,26 @@ public class HomeViewModel extends ViewModel {
 
     // 조회수 순 에피소드 데이터를 ContentItem에 추가
     private void fetchWatchedEpisodesForContentItem(String name, int n, List<ContentItem> items) {
-        apiService.getTopNWatchedEpisodes(n).enqueue(new Callback<List<Episode>>() {
+        apiService.getTopNWatchedEpisodes(n).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "fetchWatchedEpisodesForContentItem: 조회수 순 에피소드 성공 - " + response.body().size());
 
-                    items.add(new ContentItem(name, response.body()));
+                    List<EpisodeDTO> episodeDTOs = response.body();
+
+                    List<Episode> episodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        episodes.add(dto.getEpisode());
+                    }
+
+                    items.add(new ContentItem(name, episodes));
                     contentItems.setValue(items); // 변경된 리스트를 LiveData에 설정
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 Log.e(TAG, "fetchWatchedEpisodesForContentItem: 조회수 순 에피소드 실패", t);
             }
         });

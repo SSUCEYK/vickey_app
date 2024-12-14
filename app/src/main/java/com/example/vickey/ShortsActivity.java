@@ -1,5 +1,7 @@
 package com.example.vickey;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.vickey.adapter.VideoPagerAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.models.Episode;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -39,6 +43,7 @@ public class ShortsActivity extends AppCompatActivity {
     private boolean isLiked = false;
     private BottomSheetDialog episodeBottomSheet;
     private Episode currentEpisode;
+    private ApiService apiService;
 
 
     @Override
@@ -58,20 +63,20 @@ public class ShortsActivity extends AppCompatActivity {
         }
 
         // API 호출하여 데이터 가져오기
-        ApiService apiService = ApiClient.getApiService(this);
+        apiService = ApiClient.getApiService(this);
         Log.d(TAG, "onCreate: episodeId=" + episodeId);
 
-        apiService.contentInfoEpisodes(episodeId).enqueue(new Callback<Episode>() {
+        apiService.contentInfoEpisode(episodeId).enqueue(new Callback<EpisodeDTO>() {
             @Override
-            public void onResponse(Call<Episode> call, Response<Episode> response) {
+            public void onResponse(Call<EpisodeDTO> call, Response<EpisodeDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Episode episode = response.body();
+                    EpisodeDTO episodeWithVideoIds = response.body();
 
-                    Log.d(TAG, "onResponse: episode.getEpisodeId()=" + episode.getEpisodeId());
-                    Log.d(TAG, "onResponse: episode.getTitle()=" + episode.getTitle());
-                    Log.d(TAG, "onResponse: episode.getThumbnailUrl()=" +episode.getThumbnailUrl());
+                    Log.d(TAG, "onResponse: episode.getEpisodeId()=" + episodeWithVideoIds.getEpisodeId());
+                    Log.d(TAG, "onResponse: episode.getTitle()=" + episodeWithVideoIds.getTitle());
+                    Log.d(TAG, "onResponse: episode.getThumbnailUrl()=" +episodeWithVideoIds.getThumbnailUrl());
 
-                    setupVideoPlayer(episode, videoNum);
+                    setupVideoPlayer(episodeWithVideoIds, videoNum);
                 } else {
                     Toast.makeText(ShortsActivity.this,
                             getString(R.string.content_detail_load_fail), Toast.LENGTH_SHORT).show();
@@ -80,7 +85,7 @@ public class ShortsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Episode> call, Throwable t) {
+            public void onFailure(Call<EpisodeDTO> call, Throwable t) {
                 Toast.makeText(ShortsActivity.this,
                         getString(R.string.network_error), Toast.LENGTH_SHORT).show();
                 finish();
@@ -88,6 +93,66 @@ public class ShortsActivity extends AppCompatActivity {
         });
 
         initializeButtons();
+    }
+
+    private void updateWatchedStatus(int position) {
+        String userId = getSharedPreferences("user_session", Context.MODE_PRIVATE).getString("userId", null);
+        Long videoId = adapter.getVideoId(position);
+        apiService.markVideoAsWatched(userId, videoId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Watched status updated for videoId: " + videoId);
+
+                    // 브로드캐스트 발송
+                    Intent intent = new Intent("WATCHED_STATUS_UPDATED");
+                    intent.putExtra("videoId", videoId);
+                    LocalBroadcastManager.getInstance(ShortsActivity.this).sendBroadcast(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Failed to update watched status", t);
+            }
+        });
+    }
+
+    private void updateLikeStatus(int position) {
+        String userId = getSharedPreferences("user_session", Context.MODE_PRIVATE).getString("userId", null);
+        Long videoId = adapter.getVideoId(position);
+
+        if (isLiked) {
+            // 좋아요 추가
+            apiService.likeVideo(userId, videoId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Like status updated for videoId: " + videoId);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e(TAG, "Failed to update like status", t);
+                }
+            });
+        } else {
+            // 좋아요 취소
+            apiService.unlikeVideo(userId, videoId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Unlike status updated for videoId: " + videoId);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e(TAG, "Failed to update unlike status", t);
+                }
+            });
+        }
     }
 
     private void initializeButtons() {
@@ -101,6 +166,9 @@ public class ShortsActivity extends AppCompatActivity {
             isLiked = !isLiked;
             likeButton.setImageResource(isLiked ?
                     R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+
+            // 현재 페이지의 좋아요 상태 업데이트
+            updateLikeStatus(viewPager2.getCurrentItem());
         });
 
         // 메뉴 버튼
@@ -161,15 +229,16 @@ public class ShortsActivity extends AppCompatActivity {
         episodeBottomSheet.show();
     }
 
-    private void setupVideoPlayer(Episode episode, int targetVideoNum) {
-        this.currentEpisode = episode;
-        Log.d(TAG, "setupVideoPlayer: episode.getVideoURLs()=" + episode.getVideoUrls());
+    private void setupVideoPlayer(EpisodeDTO episodeWithVideoIds, int targetVideoNum) {
+        this.currentEpisode = episodeWithVideoIds.getEpisode();
+        Log.d(TAG, "setupVideoPlayer: episode.getVideoURLs()=" + episodeWithVideoIds.getVideoUrls());
         try {
 
-            List<String> videoUrls = episode.getVideoUrls();
+            List<String> videoUrls = episodeWithVideoIds.getVideoUrls();
+            List<Long> videoIds =  episodeWithVideoIds.getVideoIds();
 
             // 어댑터 설정
-            adapter = new VideoPagerAdapter(this, videoUrls);
+            adapter = new VideoPagerAdapter(this, videoUrls, videoIds);
             viewPager2.setAdapter(adapter);
 
             // 시작 위치 설정
@@ -177,6 +246,9 @@ public class ShortsActivity extends AppCompatActivity {
             if (startPosition >= 0 && startPosition < videoUrls.size()) {
                 viewPager2.setCurrentItem(startPosition, false);
             }
+
+            // 시청 기록 업데이트 **현재 페이지**
+            updateWatchedStatus(startPosition);
 
             // 초기 재생을 위한 약간의 지연 추가
             viewPager2.post(() -> {
@@ -189,8 +261,13 @@ public class ShortsActivity extends AppCompatActivity {
                 @Override
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
+
+                    // 시청 기록 업데이트
+                    updateWatchedStatus(position);
+
                     // 이전 영상 정지
                     pauseVideoAtPosition(currentPosition);
+
                     // 새 영상 재생
                     playVideoAtPosition(position);
                     currentPosition = position;

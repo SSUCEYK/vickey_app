@@ -1,6 +1,7 @@
 package com.example.vickey.api;
 
 import com.example.vickey.api.dto.CheckWatchedResponse;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.dto.LikedVideosResponse;
 import com.example.vickey.api.dto.LoginRequest;
 import com.example.vickey.api.dto.LoginResponse;
@@ -16,6 +17,7 @@ import java.util.Map;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -43,15 +45,15 @@ public interface ApiService {
 
     // 랜덤 n개의 에피소드 가져오기
     @GET("api/episodes/randomEpisodes")
-    Call<List<Episode>> getRandomEpisodes(@Query("n") int n);
+    Call<List<EpisodeDTO>> getRandomEpisodes(@Query("n") int n);
 
     // 좋아요가 가장 많은 에피소드 가져오기
     @GET("api/episodes/topLikedEpisodes")
-    Call<List<Episode>> getTopNLikedEpisodes(@Query("n") int n);
+    Call<List<EpisodeDTO>> getTopNLikedEpisodes(@Query("n") int n);
 
     // 조회수가 가장 많은 에피소드 가져오기
     @GET("api/episodes/topWatchedEpisodes")
-    Call<List<Episode>> getTopNWatchedEpisodes(@Query("n") int n);
+    Call<List<EpisodeDTO>> getTopNWatchedEpisodes(@Query("n") int n);
 
     // ID로 에피소드 데이터 가져오기
     @GET("api/episodes/{id}")
@@ -59,11 +61,11 @@ public interface ApiService {
 
     // 에피소드 검색
     @GET("/api/episodes/search")
-    Call<List<Episode>> searchEpisodes(@Query("searchQuery") String searchQuery);
+    Call<List<EpisodeDTO>> searchEpisodes(@Query("searchQuery") String searchQuery);
 
     // 에피소드 상세 정보
     @GET("api/episodes/contentInfo")
-    Call<Episode> contentInfoEpisodes(@Query("contentInfoQuery") Long contentInfoQuery);
+    Call<EpisodeDTO> contentInfoEpisode(@Query("contentInfoQuery") Long contentInfoQuery);
 
     // ID 리스트로 title 리스트 가져오기
     @POST("api/getEpisodeTitles")
@@ -75,13 +77,23 @@ public interface ApiService {
     Call<List<Like>> getUserLikes(@Path("userId") String userId);
 
     @GET("api/likes/user/{userId}/episodes")
-    Call<List<Episode>> getLikedEpisodes(@Path("userId") String userId);
+    Call<List<EpisodeDTO>> getLikedEpisodes(@Path("userId") String userId);
 
     @GET("api/likes/user/{userId}/episodes/{episodeId}")
     Call<List<LikedVideosResponse>> getLikedVideosByEpisode(@Path("userId") String userId, @Path("episodeId") Long episodeId);
 
     @GET("api/history/user/{userId}")
     Call<List<CheckWatchedResponse>> getUserHistory(@Path("userId") String userId);
+
+    @POST("api/history/user/{userId}/videos/{videoId}")
+    Call<Void> markVideoAsWatched(@Path("userId") String userId, @Path("videoId") Long videoId);
+
+    @POST("/api/likes/user/{userId}/videos/{videoId}/like")
+    Call<Void> likeVideo(@Path("userId") String userId, @Path("videoId") Long videoId);
+
+    @DELETE("/api/likes/user/{userId}/videos/{videoId}/like")
+    Call<Void> unlikeVideo(@Path("userId") String userId, @Path("videoId") Long videoId);
+
 
 
     // 소셜 로그인 (카카오/네이버)

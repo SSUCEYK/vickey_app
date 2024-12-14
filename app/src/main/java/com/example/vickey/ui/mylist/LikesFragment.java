@@ -16,8 +16,10 @@ import com.example.vickey.R;
 import com.example.vickey.adapter.LikesAdapter;
 import com.example.vickey.api.ApiClient;
 import com.example.vickey.api.ApiService;
+import com.example.vickey.api.dto.EpisodeDTO;
 import com.example.vickey.api.models.Episode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -55,28 +57,46 @@ public class LikesFragment extends Fragment {
     }
 
     private void loadLikedEpisodes(String userId) {
-        apiService.getLikedEpisodes(userId).enqueue(new Callback<List<Episode>>() {
+        apiService.getLikedEpisodes(userId).enqueue(new Callback<List<EpisodeDTO>>() {
             @Override
-            public void onResponse(Call<List<Episode>> call, Response<List<Episode>> response) {
+            public void onResponse(Call<List<EpisodeDTO>> call, Response<List<EpisodeDTO>> response) {
                 if (response.isSuccessful()) {
-                    List<Episode> likedEpisodes = response.body();
+                    List<EpisodeDTO> episodeDTOs = response.body();
 
-                    if (likedEpisodes == null || likedEpisodes.isEmpty()) {
-                        showNoLikesMessage(); // 빈 리스트일 경우 메시지 표시
+                    // Null 또는 빈 데이터 확인
+                    if (episodeDTOs == null || episodeDTOs.isEmpty()) {
+                        Log.d(TAG, "onResponse: EpisodeDTOs == null/empty");
+                        showNoLikesMessage();
+                        return; // 더 이상 처리하지 않음
+                    }
+
+                    // 데이터 변환 및 UI 업데이트
+                    List<Episode> likedEpisodes = new ArrayList<>();
+                    for (EpisodeDTO dto : episodeDTOs) {
+                        if (dto == null) {
+                            Log.e(TAG, "EpisodeDTO is null");
+                        } else if (dto.getEpisode() == null) {
+                            Log.e(TAG, "EpisodeDTO contains null Episode");
+                        } else {
+                            likedEpisodes.add(dto.getEpisode());
+                        }
+                    }
+
+                    if (likedEpisodes.isEmpty()) {
+                        showNoLikesMessage();
                     } else {
                         showLikesList();
-
-                        // 어댑터 설정
                         adapter = new LikesAdapter(getContext(), likedEpisodes);
                         recyclerView.setAdapter(adapter);
                     }
                 } else {
                     showNoLikesMessage(); // 실패한 경우에도 처리
+                    Log.e(TAG, "Response not successful: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Episode>> call, Throwable t) {
+            public void onFailure(Call<List<EpisodeDTO>> call, Throwable t) {
                 // 에러 처리
             }
         });
