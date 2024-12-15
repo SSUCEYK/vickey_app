@@ -21,6 +21,7 @@ import com.example.vickey.ContentDetailActivity;
 import com.example.vickey.R;
 import com.example.vickey.api.models.Episode;
 
+import java.io.Serializable;
 import java.util.List;
 
 // 검색결과를 표시하기 위한 recyclerview adapter
@@ -60,6 +61,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.EpisodeVie
             intent.putExtra("castList", episode.getCastList());
             intent.putExtra("description", episode.getDescription());
             intent.putExtra("releasedDate", episode.getReleasedDate());
+            intent.putExtra("videoUrls", (Serializable) episode.getVideoUrls());
+
             context.startActivity(intent);
         });
     }

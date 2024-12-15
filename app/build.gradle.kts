@@ -16,7 +16,7 @@ fun getApiKey(propertyKey: String): String {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("../../../vickey.jks")
+            storeFile = file("vickey.jks")
             storePassword = "qlalfqjsgh"
             keyAlias = "key0"
             keyPassword = "qlalfqjsgh"

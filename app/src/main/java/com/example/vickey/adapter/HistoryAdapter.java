@@ -52,16 +52,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
         if (watchedResponses == null || watchedResponses.isEmpty()) {
-            // 데이터가 null 또는 비어있는 경우 처리
             return;
         }
 
         CheckWatchedResponse cw = watchedResponses.get(position);
-        Episode episode = cw.getEpisode();
         String url = cw.getThumbnailUrl();
         holder.bindImage(url);
 
-        String t = episode.getTitle()
+        String t = cw.getEpisodeTitle()
                 + " ("
                 + context.getString(R.string.round_fr)
                 + cw.getVideoNum()
@@ -71,9 +69,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         holder.imageView.setOnClickListener(v -> {
             // 비디오 플레이 화면으로 이동 (추가: progress 시점을 기준으로 재생)
             Intent intent = new Intent(context, ShortsActivity.class);
-            intent.putExtra("episodeId", episode.getEpisodeId());
+            intent.putExtra("episodeId", cw.getEpisodeId());
             intent.putExtra("videoNum", cw.getVideoNum());
-
             context.startActivity(intent);
         });
 
@@ -115,10 +112,38 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateData(List<CheckWatchedResponse> newData) {
-        if (!watchedResponses.equals(newData)) { // 데이터 변경 여부 확인
-            watchedResponses.clear();
-            watchedResponses.addAll(newData);
+//        if (!watchedResponses.equals(newData)) { // 데이터 변경 여부 확인
+//            watchedResponses.clear();
+//            watchedResponses.addAll(newData);
+//            notifyDataSetChanged();
+//        }
+
+        if (watchedResponses == null) {
+            watchedResponses = newData;
             notifyDataSetChanged();
+        } else {
+            for (int i = 0; i < newData.size(); i++) {
+                if (i < watchedResponses.size()) {
+                    // 기존 데이터와 비교하여 변경된 경우에만 업데이트
+                    if (!watchedResponses.get(i).equals(newData.get(i))) {
+                        watchedResponses.set(i, newData.get(i));
+                        notifyItemChanged(i);
+                    }
+                } else {
+                    // 새 데이터 추가
+                    watchedResponses.add(newData.get(i));
+                    notifyItemInserted(i);
+                }
+            }
+
+            // 기존 리스트가 새 데이터보다 클 경우 초과 데이터 제거
+            if (watchedResponses.size() > newData.size()) {
+                int removeCount = watchedResponses.size() - newData.size();
+                for (int i = 0; i < removeCount; i++) {
+                    watchedResponses.remove(watchedResponses.size() - 1);
+                    notifyItemRemoved(watchedResponses.size());
+                }
+            }
         }
     }
 

@@ -103,10 +103,10 @@ public interface ApiService {
 
 
     // 소셜 로그인 (카카오/네이버)
-    @POST("/api/auth/kakao-login")
+    @POST("api/auth/kakao-login")
     Call<LoginResponse> authenticateKakao(@Body String request);
 
-    @POST("/api/auth/naver-login")
+    @POST("api/auth/naver-login")
     Call<LoginResponse> getNaverUser(@Body String request);
 
     // User

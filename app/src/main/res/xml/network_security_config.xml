@@ -3,6 +3,6 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">10.0.2.2</domain> <!-- DB 주소에 따라 달라짐 -->
-        <domain includeSubdomains="true">192.168.0.63</domain> <!-- 접속 주소에 따라 달라짐 -->
+        <domain includeSubdomains="true">192.168.0.2</domain> <!-- 접속 주소에 따라 달라짐 -->
     </domain-config>
 </network-security-config>

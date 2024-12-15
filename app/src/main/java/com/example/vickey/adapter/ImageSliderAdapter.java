@@ -144,7 +144,8 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .load(imageUrl)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
-                    .error(R.raw.thumbnail_goblin)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
                     .into(imageView);
         }
     }

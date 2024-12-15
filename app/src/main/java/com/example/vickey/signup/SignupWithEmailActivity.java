@@ -1,6 +1,8 @@
 package com.example.vickey.signup;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -74,8 +76,10 @@ public class SignupWithEmailActivity extends AppCompatActivity {
                                     Log.d(TAG, "onResponse: " + loginResponse.getUserId()
                                             + ", " + loginResponse.getUsername()
                                             + ", " + loginResponse.getEmail());
-                                    
-                                    Toast.makeText(SignupWithEmailActivity.this, "가입 성공: 로그인 화면으로 이동", Toast.LENGTH_SHORT).show();
+
+                                    clearCurrentUserId();
+
+                                    Toast.makeText(SignupWithEmailActivity.this, getString(R.string.signup_success), Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(SignupWithEmailActivity.this, LoginWithEmailActivity.class));
                                     finish(); // Activity 종료
 
@@ -87,6 +91,7 @@ public class SignupWithEmailActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<LoginResponse> call, Throwable t) {
                                 // 네트워크 오류 처리
+                                Toast.makeText(SignupWithEmailActivity.this, getString(R.string.signup_fail), Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -95,6 +100,14 @@ public class SignupWithEmailActivity extends AppCompatActivity {
                         Toast.makeText(SignupWithEmailActivity.this, "가입 실패: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void clearCurrentUserId() {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+//        editor.remove("userId"); // current_user_id 삭제
+        editor.putString("userId", null);
+        editor.apply();
     }
 
 

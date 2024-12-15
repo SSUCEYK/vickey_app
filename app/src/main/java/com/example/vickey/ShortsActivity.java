@@ -124,7 +124,10 @@ public class ShortsActivity extends AppCompatActivity {
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     boolean isLiked = response.body();
-                    updateLikeButtonUI(isLiked); // 좋아요 버튼 상태 업데이트
+
+                    // UI 업데이트 메인 스레드에서 실행
+                    runOnUiThread(() -> updateLikeButtonUI(isLiked));
+//                    updateLikeButtonUI(isLiked);
                 } else {
                     Log.e(TAG, "Failed to fetch like status: " + response.code());
                 }
@@ -139,7 +142,10 @@ public class ShortsActivity extends AppCompatActivity {
 
     private void updateLikeButtonUI(boolean isLiked) {
         this.isLiked = isLiked; // 전역 변수 업데이트
-        likeButton.setImageResource(isLiked ? R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+        likeButton.post(() -> {
+            likeButton.setImageResource(isLiked ? R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
+        });
+//        likeButton.setImageResource(isLiked ? R.drawable.ic_like_filled : R.drawable.ic_like_unfilled);
     }
 
     private void updateLikeStatus(int position) {

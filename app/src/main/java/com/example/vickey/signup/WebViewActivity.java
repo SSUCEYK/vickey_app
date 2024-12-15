@@ -34,10 +34,13 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
+        setCurrentPayState(true);
+
         webView = findViewById(R.id.webView);
         setupWebView();
         loadPaymentUrl();
         setupTouchListener();
+
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -122,6 +125,14 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
 
+
+    private void setCurrentPayState(boolean payState) {
+        SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("pay-ing", payState);
+        editor.apply();
+    }
+
     private class CustomWebChromeClient extends WebChromeClient {
         @Override
         public boolean onCreateWindow(WebView view, boolean isDialog,
@@ -168,6 +179,8 @@ public class WebViewActivity extends AppCompatActivity {
 
     private void navigateToMainActivity() {
         if (!isFinishing()) {
+            setCurrentPayState(false);
+
             Intent intent = new Intent(WebViewActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

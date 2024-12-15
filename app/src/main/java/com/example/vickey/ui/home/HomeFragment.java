@@ -118,7 +118,7 @@ public class HomeFragment extends Fragment {
 
                 // 힌트 텍스트 설정
                 searchView.setQueryHint(getString(R.string.search_query_hint));
-                searchView.setBackgroundColor(Color.LTGRAY);
+                searchView.setBackgroundColor(Color.DKGRAY);
 
                 // SearchView 내부의 EditText 색상을 초기화 시점에 설정
                 searchView.post(() -> applySearchTextColor(searchView));

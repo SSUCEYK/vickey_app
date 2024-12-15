@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,7 @@ import com.example.vickey.R;
 // 가입한 사용자가 구독방식을 선택하는 액티비티
 public class SubscriptionActivity extends AppCompatActivity {
     private Button basicBtn, standardBtn, premiumBtn, paymentBtn;
+    private ImageButton backButton;
     private TextView basicPrice, stdPrice, premPrice, basicHD, stdHD, premHD;
     private TextView basicUHD, stdUHD, premUHD, basicAccess, stdAccess, premAccess;
     private TextView basicWatch, stdWatch, premWatch;
@@ -56,6 +59,7 @@ public class SubscriptionActivity extends AppCompatActivity {
         basicWatch = findViewById(R.id.basic_watch);
         stdWatch = findViewById(R.id.std_watch);
         premWatch = findViewById(R.id.prem_watch);
+        backButton = findViewById(R.id.backButton);
 
 
         // 베이직 버튼 클릭 시 처리
@@ -132,6 +136,16 @@ public class SubscriptionActivity extends AppCompatActivity {
             }
         });
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SubscriptionActivity.this, LoginActivity.class);
+                intent.putExtra("autoLoginCancelled", true);
+                Toast.makeText(SubscriptionActivity.this, R.string.auto_login_cancel, Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 
@@ -169,6 +183,16 @@ public class SubscriptionActivity extends AppCompatActivity {
             }
         });
         colorAnimator.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // backButton 클릭 이벤트와 동일한 동작 수행
+        Intent intent = new Intent(SubscriptionActivity.this, LoginActivity.class);
+        intent.putExtra("autoLoginCancelled", true);
+        Toast.makeText(SubscriptionActivity.this, R.string.auto_login_cancel, Toast.LENGTH_SHORT).show();
+        startActivity(intent);
+        finish(); // 현재 Activity 종료
     }
 
 }

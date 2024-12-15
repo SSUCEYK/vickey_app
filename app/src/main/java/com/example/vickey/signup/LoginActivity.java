@@ -68,8 +68,10 @@ public class LoginActivity extends AppCompatActivity {
 
         apiService = ApiClient.getApiService(getApplicationContext());
         setupLoginButtons();
-        
-        if (isSessionExpired()) {
+
+        boolean autoLoginCancelled = getIntent().getBooleanExtra("autoLoginCancelled", false); // 특정 회차가 지정되지 않으면 -1
+
+        if (isSessionExpired() || autoLoginCancelled) {
             // 세션 만료 -> 로그인 화면 유지
             Log.d(TAG, "세션이 만료되었습니다.");
         } else if (isUserLoggedIn()) {
@@ -91,12 +93,12 @@ public class LoginActivity extends AppCompatActivity {
 //        kakao_login_btn.setOnClickListener(v -> {
 //            doKakaoLogin();
 //        });
-        naver_login_btn.setOnClickListener(v -> {
-            doNaverLogin();
-        });
 //        google_login_btn.setOnClickListener(v -> {
 //            doGoogleLogin();
 //        });
+        naver_login_btn.setOnClickListener(v -> {
+            doNaverLogin();
+        });
         email_login_btn.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, LoginWithEmailActivity.class));
         });
@@ -114,10 +116,20 @@ public class LoginActivity extends AppCompatActivity {
     // 세션 만료 여부 확인
     private boolean isSessionExpired() {
         SharedPreferences prefs = getSharedPreferences("user_session", Context.MODE_PRIVATE);
+
         long lastLoginTime = prefs.getLong("last_login_time", 0);
         boolean isLoginned = prefs.getBoolean("isLoginned", false);
+        String userId = prefs.getString("userId", null);
         long currentTime = System.currentTimeMillis();
-        return isLoginned && (currentTime - lastLoginTime > 24 * 60 * 60 * 1000); // 24시간 기준
+        boolean payState = prefs.getBoolean("pay-ing", true);
+
+        Log.d(TAG, "isSessionExpired: userId=" + userId
+                + ", isLoginned=" + isLoginned
+                + ", last_login_time=" + lastLoginTime
+                + ", payState=" + payState
+                + ", currentTime - lastLoginTime=" + (currentTime - lastLoginTime));
+
+        return (userId!=null) && isLoginned && (!payState) && (currentTime - lastLoginTime > 24 * 60 * 60 * 1000); // 24시간 기준
     }
 
     // 자동 로그인 처리
@@ -131,12 +143,11 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // 로그인 상태에 따라 처리
-        Log.d(TAG, "자동 로그인 성공: " + loginMethod + ", " + userId);
-        
         // 구독 체크
         verifySessionWithServer(userId);
 
+        // 로그인 상태에 따라 처리
+        Log.d(TAG, "자동 로그인 성공: " + loginMethod + ", " + userId);
         Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
 
     }
@@ -335,7 +346,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveLoginSession("naver", loginResponse.getUserId());
 
                     //테스트용
-                    loginResponse.setSubscribed(true);
+//                    loginResponse.setSubscribed(true);
 
                     //DB 저장 이후 결제 처리
                     if (loginResponse.isSubscribed()) {

@@ -39,6 +39,7 @@ public class HistoryFragment extends Fragment {
     private ApiService apiService;
     private SwipeRefreshLayout swipeRefreshLayout;
     private final String TAG = "HistoryFragment";
+    private boolean isLoading = false;
 
 
     @Override
@@ -94,6 +95,9 @@ public class HistoryFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView_history);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
+        // RecyclerView 기본 애니메이션 제거
+        recyclerView.setItemAnimator(null);
+
         // 싱글톤 ApiService 사용
         apiService = ApiClient.getApiService(requireContext()); 
 
@@ -119,11 +123,15 @@ public class HistoryFragment extends Fragment {
 
 
     private void loadUserHistory(String userId) {
+
+        if (isLoading) return; // 중복 호출 방지
+        isLoading = true;
         swipeRefreshLayout.setRefreshing(true); // 새로고침 아이콘 표시
 
         apiService.getUserHistory(userId).enqueue(new Callback<List<CheckWatchedResponse>>() {
             @Override
             public void onResponse(Call<List<CheckWatchedResponse>> call, Response<List<CheckWatchedResponse>> response) {
+                isLoading = false;
                 swipeRefreshLayout.setRefreshing(false); // 새로고침 아이콘 종료
 
                 if (response.isSuccessful() && response.body() != null) {
@@ -159,6 +167,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onFailure(Call<List<CheckWatchedResponse>> call, Throwable t) {
                 // 에러 처리
+                isLoading = false;
                 swipeRefreshLayout.setRefreshing(false); // 새로고침 아이콘 종료
                 Log.e(TAG, "Failed to load history", t);
             }

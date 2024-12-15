@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -76,25 +77,29 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
     private LinearLayout language_setting;
     private LinearLayout inquiry_request;
 
+    private ProfileViewModel viewModel;
     private SharedPreferences prefs;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        setBind();
         apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
+        setBind();
+
+        // ViewModel 초기화
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
         // SharedPreferences에서 userId 가져오기
         prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        SharedPreferences statePrefs = requireContext().getSharedPreferences("app_state", Context.MODE_PRIVATE);
-
-        // 기존 데이터 복원
-        userId = statePrefs.getString("current_user_id", prefs.getString("userId", null));
-        Log.d(TAG, "onCreateView: userId=" + userId);
+        userId = prefs.getString("userId", null);
         profile_uid.setText("UID: " + userId);
 
-        setUserProfile();
+        // ViewModel의 LiveData를 관찰하여 UI 업데이트
+        viewModel.getUser().observe(getViewLifecycleOwner(), this::updateUserProfileUI);
+
+        // 사용자 데이터 로드
+        viewModel.loadUser(userId, apiService);
 
         return binding.getRoot();
     }
@@ -160,10 +165,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("language", langCode);
         editor.apply();
-
-        // 현재 상태 데이터를 저장 (예: userId)
-        SharedPreferences statePrefs = requireContext().getSharedPreferences("app_state", Context.MODE_PRIVATE);
-        statePrefs.edit().putString("current_user_id", userId).apply();
 
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);
@@ -315,18 +316,23 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         prefs = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE);
         String loginMethod = prefs.getString("login_method", "");
 
-        if (loginMethod.equals("kakao")){
-            UserApiClient.getInstance().logout(error -> {
-                if (error != null) {
-                    makeLogoutToastMsg(false);
-                    Log.e("Logout", "카카오 로그아웃 실패", error);
-                } else {
-                    makeLogoutToastMsg(true);
-                }
-                return null;
-            });
-        }
-        else if (loginMethod.equals("naver")){
+//        if (loginMethod.equals("kakao")){
+//            UserApiClient.getInstance().logout(error -> {
+//                if (error != null) {
+//                    makeLogoutToastMsg(false);
+//                    Log.e("Logout", "카카오 로그아웃 실패", error);
+//                } else {
+//                    makeLogoutToastMsg(true);
+//                }
+//                return null;
+//            });
+//        } else if (loginMethod.equals("google")){
+//            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
+//            mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
+//                makeLogoutToastMsg(true);
+//            });
+//        }
+        if (loginMethod.equals("naver")){
             try {
                 NaverIdLoginSDK.INSTANCE.logout();
                 makeLogoutToastMsg(true);
@@ -334,12 +340,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
                 makeLogoutToastMsg(false);
                 Log.e("Logout", "네이버 로그아웃 실패", e);
             }
-        }
-        else if (loginMethod.equals("google")){
-            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
-            mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
-                makeLogoutToastMsg(true);
-            });
         }
         else if (loginMethod.equals("email")){
             try {
@@ -352,7 +352,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         }
         else{
             makeLogoutToastMsg(false);
-            Log.e("Logout", "로그아웃 실패");
+            Log.e("Logout", "로그아웃 실패: no login session");
             return;
         }
 
