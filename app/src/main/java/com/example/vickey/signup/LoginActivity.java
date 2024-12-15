@@ -67,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         apiService = ApiClient.getApiService(getApplicationContext());
+
         setupLoginButtons();
 
         boolean autoLoginCancelled = getIntent().getBooleanExtra("autoLoginCancelled", false); // 특정 회차가 지정되지 않으면 -1
