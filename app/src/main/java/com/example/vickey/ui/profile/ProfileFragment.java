@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -295,6 +296,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
             Glide.with(requireContext())
                     .load(profileUrl)
                     .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .placeholder(R.drawable.placeholder)
                             .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
                     .into(profile_image);
         }
@@ -308,6 +311,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener{
         Glide.with(requireContext())
                 .load(url)
                 .apply(new RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .placeholder(R.drawable.placeholder)
                         .transform(new CenterCrop(), new RoundedCorners(32))) // 코너 라운드 처리
                 .into(profile_image);
     }

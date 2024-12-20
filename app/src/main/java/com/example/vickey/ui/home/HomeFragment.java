@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
@@ -48,6 +49,7 @@ import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
+    private MenuProvider menuProvider;
     private ApiService apiService;
     private FragmentHomeBinding binding;
     private ViewPager2 sliderViewPager;
@@ -77,16 +79,33 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+
+        // MenuProvider 제거
+        if (menuProvider != null) {
+            requireActivity().removeMenuProvider(menuProvider);
+            menuProvider = null;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // 검색 상태 초기화
+        hideSearchUI();
+        if (searchAdapter != null) {
+            searchAdapter.updateEpisodes(new ArrayList<>());
+        }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // ApiClient를 통해 Retrofit 인스턴스 가져오기
-        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
+        // Toolbar 설정
+        Toolbar toolbar = ((MainActivity) requireActivity()).getToolbar();
 
-        // ViewModel에 ApiService 전달
+        // ApiClient 및 ViewModel 초기화
+        apiService = ApiClient.getApiService(requireContext()); // 싱글톤 ApiService 사용
         homeViewModel.setApiService(apiService);
 
         sliderViewPager = view.findViewById(R.id.sliderViewPager);
@@ -99,113 +118,20 @@ public class HomeFragment extends Fragment {
         observeViewModel(); // ViewModel 관찰
         loadDataOnce(); // 초기 데이터 로드 메서드
 
+        // MenuProvider 등록
+        makeMenuProvider();
+        requireActivity().addMenuProvider(menuProvider, getViewLifecycleOwner());
+
+        // 검색 RecyclerView 설정
+        setupSearchRecyclerView();
+    }
+
+    private void setupSearchRecyclerView() {
         // 검색 결과를 위한 RecyclerView 설정
         searchRecyclerView = binding.searchResultRecyclerView;
         searchRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         searchAdapter = new SearchAdapter(new ArrayList<>());
         searchRecyclerView.setAdapter(searchAdapter);
-
-        //검색
-        requireActivity().addMenuProvider(new MenuProvider() {
-            @SuppressLint("ResourceType")
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-
-                menuInflater.inflate(R.menu.actionbar_menu, menu);
-                MenuItem menuItem = menu.findItem(R.id.search);
-                SearchView searchView = (SearchView) menuItem.getActionView();
-                logSearchViewChildren(searchView, "");
-
-                // 힌트 텍스트 설정
-                searchView.setQueryHint(getString(R.string.search_query_hint));
-                searchView.setBackgroundColor(Color.DKGRAY);
-
-                // SearchView 내부의 EditText 색상을 초기화 시점에 설정
-                searchView.post(() -> applySearchTextColor(searchView));
-
-                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem item) {
-                        applySearchTextColor(searchView);
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem item) {
-                        return true;
-                    }
-                });
-
-
-                // SearchView 리스너 설정
-                searchView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        searchView.getViewTreeObserver().removeOnPreDrawListener(this);
-                        applySearchTextColor(searchView);
-                        return true;
-                    }
-                });
-
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-                    private Handler handler = new Handler();
-                    private Runnable searchRunnable;
-
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        applySearchTextColor(searchView);
-                        performSearch(query);
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        if (searchRunnable != null) {
-                            handler.removeCallbacks(searchRunnable);
-                        }
-
-                        applySearchTextColor(searchView);
-
-                        // 검색어가 비어있으면 즉시 결과 초기화
-                        if (newText.trim().isEmpty()) {
-                            searchAdapter.updateEpisodes(new ArrayList<>());
-                        }
-
-                        searchRunnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                performSearch(newText);
-                            }
-                        };
-
-                        handler.postDelayed(searchRunnable, 300);
-                        return true;
-                    }
-                });
-
-                // SearchView 확장/축소 리스너
-                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem item) {
-                        // 검색 시작할 때의 UI 처리
-                        showSearchUI();
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem item) {
-                        // 검색 종료할 때의 UI 처리
-                        hideSearchUI();
-                        return true;
-                    }
-                });
-            }
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                return false;
-            }
-        }, getViewLifecycleOwner());
     }
 
     private void observeViewModel() {
@@ -366,6 +292,110 @@ public class HomeFragment extends Fragment {
                 setCurrentIndicator(actualPosition);
             }
         });
+    }
+
+    private void makeMenuProvider(){
+        menuProvider = new MenuProvider() {
+            @SuppressLint("ResourceType")
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+
+                menuInflater.inflate(R.menu.actionbar_menu, menu);
+                MenuItem menuItem = menu.findItem(R.id.search);
+                SearchView searchView = (SearchView) menuItem.getActionView();
+                logSearchViewChildren(searchView, "");
+
+                // 힌트 텍스트 설정
+                searchView.setQueryHint(getString(R.string.search_query_hint));
+                searchView.setBackgroundColor(Color.DKGRAY);
+
+                // SearchView 내부의 EditText 색상을 초기화 시점에 설정
+                searchView.post(() -> applySearchTextColor(searchView));
+
+                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        applySearchTextColor(searchView);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        return true;
+                    }
+                });
+
+
+                // SearchView 리스너 설정
+                searchView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        searchView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        applySearchTextColor(searchView);
+                        return true;
+                    }
+                });
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+                    private Handler handler = new Handler();
+                    private Runnable searchRunnable;
+
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        applySearchTextColor(searchView);
+                        performSearch(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (searchRunnable != null) {
+                            handler.removeCallbacks(searchRunnable);
+                        }
+
+                        applySearchTextColor(searchView);
+
+                        // 검색어가 비어있으면 즉시 결과 초기화
+                        if (newText.trim().isEmpty()) {
+                            searchAdapter.updateEpisodes(new ArrayList<>());
+                        }
+
+                        searchRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                performSearch(newText);
+                            }
+                        };
+
+                        handler.postDelayed(searchRunnable, 300);
+                        return true;
+                    }
+                });
+
+                // SearchView 확장/축소 리스너
+                menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        // 검색 시작할 때의 UI 처리
+                        showSearchUI();
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        // 검색 종료할 때의 UI 처리
+                        hideSearchUI();
+                        return true;
+                    }
+                });
+            }
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                return false;
+            }
+        };
+
     }
 
     private void setupIndicators(int count) {

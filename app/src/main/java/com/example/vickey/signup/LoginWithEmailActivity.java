@@ -71,7 +71,6 @@ public class LoginWithEmailActivity extends AppCompatActivity {
             .addOnCompleteListener(task -> {
                 // 로그인 성공
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginWithEmailActivity.this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                     String uid = auth.getCurrentUser().getUid();
                     Log.d(TAG, "loginUser: uid="+ uid);
 
@@ -115,6 +114,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
                     //DB 저장 이후 결제 처리
                     if (loginResponse.isSubscribed()) {
                         // 결제 완료 -> 메인 페이지로 이동
+                        Toast.makeText(LoginWithEmailActivity.this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginWithEmailActivity.this, MainActivity.class);
                         startActivity(intent);
                     } else {
@@ -131,6 +131,7 @@ public class LoginWithEmailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 // 네트워크 오류 처리
+                Log.d(TAG, "onFailure: loginWithEmail failed: " + t.getMessage());
             }
         });
     }

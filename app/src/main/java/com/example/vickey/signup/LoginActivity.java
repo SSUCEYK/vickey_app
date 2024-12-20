@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.L;
 import com.example.vickey.MainActivity;
 import com.example.vickey.R;
 import com.example.vickey.api.ApiClient;
@@ -149,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // 로그인 상태에 따라 처리
         Log.d(TAG, "자동 로그인 성공: " + loginMethod + ", " + userId);
-        Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -163,8 +163,10 @@ public class LoginActivity extends AppCompatActivity {
 
                     // 로그인 상태에 따라 처리
                     Log.d(TAG, "자동 로그인 - 구독 상태 확인 완료: " + userId);
+                    Log.d(TAG, "onResponse: UserStatus.isSubscribed()="+user.isSubscribed());
 
                     if (user.isSubscribed()) {
+                        Toast.makeText(LoginActivity.this, getString(R.string.auto_login), Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class)); // 메인 페이지로 이동
                     } else {
                         startActivity(new Intent(LoginActivity.this, SubscriptionActivity.class)); // 구독 페이지로 이동
@@ -323,7 +325,6 @@ public class LoginActivity extends AppCompatActivity {
     );
 
     private void doNaverLogin() {
-        NaverIdLoginSDK.INSTANCE.initialize(this, getString(R.string.naver_client_id), getString(R.string.naver_client_secret), getString(R.string.naver_client_name));// Naver SDK 초기화
         NaverIdLoginSDK.INSTANCE.authenticate(this, naverLauncher);
     }
 

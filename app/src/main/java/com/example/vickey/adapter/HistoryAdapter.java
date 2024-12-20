@@ -103,20 +103,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
             Log.d("HistoryAdapter", imageUrl);
             Glide.with(context)
                     .load(imageUrl)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
-                    .error(R.raw.thumbnail_goblin)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
                     .into(imageView);
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateData(List<CheckWatchedResponse> newData) {
-//        if (!watchedResponses.equals(newData)) { // 데이터 변경 여부 확인
-//            watchedResponses.clear();
-//            watchedResponses.addAll(newData);
-//            notifyDataSetChanged();
-//        }
 
         if (watchedResponses == null) {
             watchedResponses = newData;

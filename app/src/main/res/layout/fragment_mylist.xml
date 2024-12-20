@@ -7,27 +7,22 @@
     tools:context=".ui.mylist.MyListFragment"
     android:background="@color/black">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tool_bar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/black"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/white"
+    <TextView
+        android:id="@+id/empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="15dp"/>
+        />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tool_bar"
+        app:layout_constraintTop_toBottomOf="@id/empty_text"
         app:tabTextColor="@color/grey_1"
-        app:tabSelectedTextColor="@color/white"
-        />
+        app:tabSelectedTextColor="@color/white" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

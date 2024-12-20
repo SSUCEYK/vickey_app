@@ -5,7 +5,7 @@ public class UserStatus {
     private boolean subscribed; // Match the JSON key "subscribed"
 
     public boolean isSubscribed() {
-        return subscribed;
+        return this.subscribed;
     }
 
     public boolean getSubscribed() {return this.subscribed;}

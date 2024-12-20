@@ -6,6 +6,7 @@ import android.content.pm.Signature;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,15 +30,34 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Toolbar 설정
+        
+        // 툴바
         Toolbar toolbar = findViewById(R.id.search_bar);
-        setSupportActionBar(toolbar);
+        toolbar.setTitle(R.string.app_name); // 제목 변경
 
+        // NavController 초기화
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
+        // onDestinationChanged를 사용해 Toolbar 초기화
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+
+            // Toolbar를 Fragment에 따라 변경하며 관리
+            if (destination.getId() == R.id.navigation_home) {
+                setSupportActionBar(toolbar);
+                toolbar.setVisibility(View.VISIBLE);
+            } else if (destination.getId() == R.id.navigation_mylist) {
+                toolbar.setVisibility(View.VISIBLE);
+            }
+            else {
+                toolbar.setVisibility(View.GONE);
+            }
+        });
 //        getHashKey();
+    }
+
+    public Toolbar getToolbar() {
+        return findViewById(R.id.search_bar);
     }
 
     // BottomNavigationView 제어를 위한 메서드 추가

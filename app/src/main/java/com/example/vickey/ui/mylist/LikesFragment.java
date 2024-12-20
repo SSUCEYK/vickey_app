@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -57,6 +58,7 @@ public class LikesFragment extends Fragment {
     }
 
     private final BroadcastReceiver likeStatusReceiver = new BroadcastReceiver() {
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null && "LIKE_STATUS_UPDATED".equals(intent.getAction())) {
@@ -80,6 +82,7 @@ public class LikesFragment extends Fragment {
     };
 
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -142,7 +145,7 @@ public class LikesFragment extends Fragment {
                     } else {
                         showLikesList();
                         if (adapter == null) {
-                            adapter = new LikesAdapter(getContext(), uniqueEpisodes);
+                            adapter = new LikesAdapter(requireContext(), uniqueEpisodes);
                             recyclerView.setAdapter(adapter);
                         } else {
                             adapter.updateData(uniqueEpisodes);

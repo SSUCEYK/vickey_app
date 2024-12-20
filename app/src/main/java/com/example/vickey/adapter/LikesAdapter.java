@@ -3,6 +3,7 @@ package com.example.vickey.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_likes, parent, false);
+        Log.d(TAG, "onCreateViewHolder: Inflated layout=" + view.toString());
         return new MyViewHolder(view);
     }
 
@@ -66,6 +68,8 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
 
         // imageView 클릭 이벤트
         holder.imageView.setOnClickListener(v -> {
+            Log.d(TAG, "ImageView clicked for episode: " + likedEpisode.getTitle());
+
             Intent intent = new Intent(context, LikesEpisodeActivity.class);
             intent.putExtra("episodeId", likedEpisode.getEpisodeId());
             intent.putExtra("title", likedEpisode.getTitle());
@@ -74,11 +78,14 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
             intent.putExtra("castList", likedEpisode.getCastList());
             intent.putExtra("description", likedEpisode.getDescription());
             intent.putExtra("releasedDate", likedEpisode.getReleasedDate());
+            intent.putExtra("videoUrls", (Serializable) likedEpisode.getVideoUrls());
             context.startActivity(intent);
         });
 
         // 점 세 개 버튼 클릭 이벤트
         holder.menuButton.setOnClickListener(v -> {
+            Log.d(TAG, "menuButton clicked for episode: " + likedEpisode.getTitle());
+
             // 애니메이션 효과 추가
             holder.menuButton.animate()
                     .scaleX(1.2f) // X축 확대
@@ -122,15 +129,27 @@ public class LikesAdapter extends RecyclerView.Adapter<LikesAdapter.MyViewHolder
             imageView = itemView.findViewById(R.id.likes_image);
             menuButton = itemView.findViewById(R.id.menu_button); // 점 세 개 버튼 참조
             textView = itemView.findViewById(R.id.likes_text);
+
+            Log.d(TAG, "MyViewHolder: itemView=" + itemView.toString());
+
+            if (imageView == null) {
+                Log.e(TAG, "MyViewHolder: likes_image not found");
+            }
+            if (menuButton == null) {
+                Log.e(TAG, "MyViewHolder: menu_button not found");
+            }
+            if (textView == null) {
+                Log.e(TAG, "MyViewHolder: likes_text not found");
+            }
         }
 
         @SuppressLint("ResourceType")
         public void bindImage(String imageUrl) {
             Glide.with(context)
                     .load(imageUrl)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) //캐싱 활성화
-                    .error(R.raw.thumbnail_goblin)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
                     .into(imageView);
 
         }

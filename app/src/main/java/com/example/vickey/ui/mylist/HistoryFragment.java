@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -84,6 +85,7 @@ public class HistoryFragment extends Fragment {
     };
 
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -99,12 +101,12 @@ public class HistoryFragment extends Fragment {
         recyclerView.setItemAnimator(null);
 
         // 싱글톤 ApiService 사용
-        apiService = ApiClient.getApiService(requireContext()); 
+        apiService = ApiClient.getApiService(requireContext());
 
         // SharedPreferences에서 userId 가져오기
         String userId = requireContext().getSharedPreferences("user_session", Context.MODE_PRIVATE)
                 .getString("userId", null);
-        
+
         // 시청 기록 로드
         loadUserHistory(userId);
 

@@ -142,11 +142,11 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
             Glide.with(context)
                     .load(imageUrl)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // 캐싱 활성화
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .into(imageView);
+//                    .skipMemoryCache(true)
         }
     }
 

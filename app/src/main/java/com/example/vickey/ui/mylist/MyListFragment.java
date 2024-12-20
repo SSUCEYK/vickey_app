@@ -19,7 +19,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class MyListFragment extends Fragment {
 
     private FragmentMylistBinding binding;
-//    private MyListViewModel myListViewModel;
+    //    private MyListViewModel myListViewModel;
     private final String TAG = "MyListFragment";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
